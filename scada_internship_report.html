@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCADA Data Analytics & ML Dashboard - Internship Report</title>
+  <style>
+    /* Global Styles */
+    :root {
+      --bg-color: #0f172a;
+      --sidebar-bg: #1e293b;
+      --sidebar-text: #f8fafc;
+      --accent-color: #3b82f6;
+      --accent-hover: #2563eb;
+      --page-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      --font-academic: 'Times New Roman', Times, serif;
+      --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: var(--font-sans);
+      color: #334155;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 320px;
+      background-color: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #334155;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid #334155;
+    }
+
+    .sidebar-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #38bdf8;
+      line-height: 1.3;
+    }
+
+    .sidebar-subtitle {
+      font-size: 0.75rem;
+      margin-top: 4px;
+      color: #94a3b8;
+    }
+
+    .sidebar-menu {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .menu-section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #64748b;
+      margin: 16px 0 8px 8px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 6px;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .menu-item:hover {
+      background-color: #334155;
+      color: white;
+    }
+
+    .menu-item.active {
+      background-color: var(--accent-color);
+      color: white;
+      font-weight: 600;
+    }
+
+    .menu-item-number {
+      width: 24px;
+      font-size: 0.75rem;
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    .menu-item.active .menu-item-number {
+      color: #bfdbfe;
+    }
+
+    .sidebar-actions {
+      padding: 20px;
+      border-top: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background-color: #0284c7;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #0369a1;
+    }
+
+    .btn-secondary {
+      background-color: #334155;
+      color: #e2e8f0;
+      border: 1px solid #475569;
+    }
+
+    .btn-secondary:hover {
+      background-color: #475569;
+    }
+
+    /* Main Content / Document Viewer Area */
+    .viewer {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      scroll-behavior: smooth;
+    }
+
+    /* Document Page Styles */
+    .page {
+      background: white;
+      width: 210mm; /* A4 standard width */
+      height: 297mm; /* A4 standard height */
+      min-height: 297mm;
+      padding: 2.5cm 2.5cm 2.5cm 3cm; /* standard academic margin (left slightly wider for binding) */
+      margin-bottom: 40px;
+      box-shadow: var(--page-shadow);
+      position: relative;
+      font-family: var(--font-academic);
+      font-size: 12pt;
+      line-height: 1.5;
+      color: #000;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Page Footer / Numbers */
+    .page-footer {
+      height: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      font-size: 11pt;
+      color: #333;
+      font-family: var(--font-academic);
+      margin-top: 10px;
+    }
+
+    /* Academic Formatting Utilities */
+    h1, h2, h3, h4 {
+      font-family: var(--font-academic);
+      color: #000;
+      font-weight: bold;
+      line-height: 1.2;
+      margin-bottom: 12pt;
+    }
+
+    h1 {
+      font-size: 16pt;
+      text-align: center;
+      text-transform: uppercase;
+      margin-top: 18pt;
+    }
+
+    h2 {
+      font-size: 14pt;
+      margin-top: 16pt;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 4px;
+    }
+
+    h3 {
+      font-size: 12pt;
+      margin-top: 12pt;
+    }
+
+    p {
+      text-align: justify;
+      text-indent: 0.5in;
+      margin-bottom: 10pt;
+    }
+
+    p.no-indent {
+      text-indent: 0;
+    }
+
+    ul, ol {
+      margin-left: 0.5in;
+      margin-bottom: 10pt;
+    }
+
+    li {
+      margin-bottom: 4pt;
+      text-align: justify;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15pt 0;
+      font-family: var(--font-academic);
+      font-size: 11pt;
+    }
+
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+
+    .center-text {
+      text-align: center;
+    }
+
+    /* Title Page Specifics */
+    .title-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      height: 100%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    .title-header {
+      font-size: 16pt;
+      font-weight: bold;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .title-main {
+      font-size: 20pt;
+      font-weight: bold;
+      text-align: center;
+      margin: 30px 0;
+      line-height: 1.3;
+      color: #0369a1;
+    }
+
+    .title-submission-text {
+      font-size: 12pt;
+      text-align: center;
+      font-style: italic;
+      max-width: 80%;
+      margin: 15px auto;
+    }
+
+    .title-submitted-by {
+      width: 100%;
+      margin: 20px 0;
+    }
+
+    .student-list {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      font-size: 12pt;
+      font-weight: bold;
+    }
+
+    .logo-container {
+      margin: 20px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .logo-svg {
+      width: 130px;
+      height: 130px;
+    }
+
+    .title-college-details {
+      text-align: center;
+      font-size: 13pt;
+      font-weight: bold;
+      line-height: 1.4;
+    }
+
+    /* Certificate & Declaration Styles */
+    .cert-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #0369a1;
+      padding-bottom: 10px;
+      width: 100%;
+    }
+
+    .cert-university-name {
+      font-size: 18pt;
+      font-weight: bold;
+      color: #0369a1;
+      text-align: center;
+    }
+
+    .cert-university-subtext {
+      font-size: 9pt;
+      color: #333;
+      text-align: center;
+    }
+
+    .cert-title {
+      font-size: 16pt;
+      font-weight: bold;
+      text-align: center;
+      margin: 20px 0;
+      text-decoration: underline;
+    }
+
+    .cert-body {
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+
+    .signature-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 80px;
+      width: 100%;
+    }
+
+    .signature-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 200px;
+      text-align: center;
+    }
+
+    .signature-line {
+      border-top: 1px solid black;
+      width: 100%;
+      margin-bottom: 5px;
+    }
+
+    /* HTML Certificate Mockup */
+    .certificate-mockup {
+      border: 6px double #c5a059;
+      background-color: #fcfbf7;
+      padding: 30px;
+      height: 90%;
+      width: 100%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-family: 'Georgia', serif;
+    }
+
+    .cert-mock-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cert-mock-logo {
+      font-weight: bold;
+      font-size: 16pt;
+      color: #1e3a8a;
+      letter-spacing: 1px;
+    }
+
+    .cert-mock-date {
+      font-size: 10pt;
+      font-style: italic;
+    }
+
+    .cert-mock-title {
+      font-size: 20pt;
+      font-weight: bold;
+      color: #b45309;
+      text-align: center;
+      margin: 15px 0;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-family: 'Times New Roman', serif;
+    }
+
+    .cert-mock-body {
+      font-size: 10.5pt;
+      line-height: 1.6;
+      text-align: center;
+      text-indent: 0;
+      color: #374151;
+    }
+
+    .cert-mock-body strong {
+      color: #111827;
+    }
+
+    .cert-mock-list {
+      margin: 10px auto;
+      width: 80%;
+      text-align: left;
+      font-size: 9.5pt;
+      list-style-type: square;
+    }
+
+    .cert-mock-signatures {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 15px;
+    }
+
+    .cert-mock-seal {
+      width: 80px;
+      height: 80px;
+      border: 3px dashed #c5a059;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 7pt;
+      color: #c5a059;
+      font-weight: bold;
+      text-align: center;
+      transform: rotate(-15deg);
+    }
+
+    .cert-mock-footer-logos {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 10px;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 8px;
+      font-size: 8pt;
+      color: #9ca3af;
+      font-weight: bold;
+    }
+
+    /* Print Overrides */
+    @media print {
+      body {
+        background-color: white;
+        overflow: visible;
+        display: block;
+        height: auto;
+      }
+
+      .sidebar {
+        display: none !important;
+      }
+
+      .viewer {
+        padding: 0;
+        overflow: visible;
+        display: block;
+      }
+
+      .page {
+        margin: 0;
+        box-shadow: none;
+        page-break-after: always;
+        width: 210mm;
+        height: 297mm;
+        overflow: hidden;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar / Interactive Controls -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">SCADA Report Builder</div>
+      <div class="sidebar-subtitle">B.Tech Internship Documentation</div>
+    </div>
+    
+    <div class="sidebar-menu">
+      <div class="menu-section-title">Academic Prelims</div>
+      <a href="#page1" class="menu-item active" onclick="activateLink(this)"><span class="menu-item-number">1</span> Cover Page</a>
+      <a href="#page2" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">2</span> Certificate</a>
+      <a href="#page3" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">3</span> Declaration</a>
+      <a href="#page4" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">4</span> Acknowledgement</a>
+      <a href="#page5" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">5</span> Internship Cert</a>
+      
+      <div class="menu-section-title">Technical Report</div>
+      <a href="#page6" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">6</span> Abstract</a>
+      <a href="#page7" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">7</span> SDG Mapping</a>
+      <a href="#page8" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">8</span> Introduction</a>
+      <a href="#page9" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">9</span> Objectives</a>
+      <a href="#page10" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">10</span> Methodology</a>
+      <a href="#page11" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">11</span> Implementation</a>
+      <a href="#page12" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">12</span> Results & Outcomes</a>
+      <a href="#page13" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">13</span> Key Learnings</a>
+      <a href="#page14" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">14</span> Conclusion</a>
+      <a href="#page15" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">15</span> Final Outcomes</a>
+      <a href="#page16" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">16</span> Product Development</a>
+      <a href="#page17" class="menu-item" onclick="activateLink(this)"><span class="menu-item-number">17</span> About the Company</a>
+    </div>
+
+    <div class="sidebar-actions">
+      <button class="btn btn-primary" onclick="window.print()">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+        </svg>
+        Print / Save as PDF
+      </button>
+      <button class="btn btn-secondary" onclick="alert('This report is ready to print. Use Ctrl+P or the button above. Set margins to None/Minimum in print options for best results.')">
+        Format Instructions
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Viewer Content -->
+  <div class="viewer" id="viewer-area">
+
+    <!-- PAGE 1: TITLE PAGE -->
+    <div class="page" id="page1">
+      <div class="page-content title-page">
+        <div class="title-header">
+          INTERNSHIP REPORT
+        </div>
+
+        <div class="title-main">
+          SCADA DATA ANALYTICS & MACHINE LEARNING DASHBOARD
+        </div>
+
+        <div class="title-submission-text">
+          Submitted in partial fulfillment of the requirements for the Summer Internship of
+          <br>
+          <strong>Bachelor of Technology (B.Tech.)</strong>
+        </div>
+
+        <div class="title-submitted-by">
+          <div style="text-align: center; margin-bottom: 10px; font-style: italic;">Submitted by:</div>
+          <div class="student-list">
+            <div>K.Laxmi Priya (23A91A4429 – DS)</div>
+            <div>SK.Mahaboobinnisa (23A91A4459 – DS)</div>
+            <div>V.Likhitha (23A91A4465 — DS)</div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin: 15px 0;">
+          Under the Guidance of
+          <br>
+          <strong>Mr. Patnala Pattabhirama Mohan</strong>
+          <br>
+          Assistant Professor, Department of DS (Guide)
+        </div>
+
+        <div style="text-align: center; margin-bottom: 15px;">
+          <strong>Internship Duration:</strong>
+          <br>
+          From: 05/05/2026 - To: 29/06/2026
+        </div>
+
+        <div class="logo-container">
+          <svg class="logo-svg" viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="45" stroke="#0369a1" stroke-width="2"/>
+            <circle cx="50" cy="50" r="38" stroke="#0369a1" stroke-dasharray="4 2"/>
+            <polygon points="50,15 62,38 85,50 62,62 50,85 38,62 15,50 38,38" stroke="#c5a059" stroke-width="1.5" fill="#fcfbf7"/>
+            <circle cx="50" cy="50" r="10" stroke="#0369a1" stroke-width="2" fill="#c5a059"/>
+            <path d="M50,45 L50,55 M45,50 L55,50" stroke="white" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <div class="title-college-details">
+          DEPARTMENT OF INFORMATION TECHNOLOGY
+          <br>
+          ADITYA UNIVERSITY
+          <br>
+          Aditya Nagar, ADB Road, Surampalem, Andhra Pradesh, India
+          <br>
+          2026
+        </div>
+      </div>
+      <div class="page-footer">1</div>
+    </div>
+
+
+    <!-- PAGE 2: CERTIFICATE -->
+    <div class="page" id="page2">
+      <div class="page-content">
+        <div class="cert-header">
+          <div class="cert-university-name">ADITYA UNIVERSITY</div>
+          <div class="cert-university-subtext">Aditya Nagar, ADB Road, Surampalem, Andhra Pradesh, India</div>
+        </div>
+
+        <div class="cert-title">CERTIFICATE</div>
+
+        <div class="cert-body">
+          <p class="no-indent">
+            This is to certify that the project entitled <strong>"SCADA DATA ANALYTICS & MACHINE LEARNING DASHBOARD"</strong> is being submitted by <strong>K.Laxmi Priya (23A91A4429)</strong>, <strong>SK.Mahaboobinnisa (23A91A4459)</strong>, and <strong>V.Likhitha (23A91A4465)</strong> in partial fulfillment of the requirements for the Summer Internship in <strong>Information Technology (IT)</strong>. The work carried out by the students is genuine and fulfills the requirements prescribed by the institution.
+          </p>
+        </div>
+
+        <div class="signature-row">
+          <div class="signature-block">
+            <div class="signature-line"></div>
+            <strong>Project Guide</strong>
+            <div>Name: Mr. Patnala Pattabhirama Mohan</div>
+            <div>Designation: Assistant Professor</div>
+          </div>
+          
+          <div class="signature-block" style="align-self: flex-end;">
+            <div><strong>Date:</strong> 25.June.2026</div>
+            <div><strong>Place:</strong> Surampalem</div>
+          </div>
+        </div>
+      </div>
+      <div class="page-footer">2</div>
+    </div>
+
+
+    <!-- PAGE 3: DECLARATION -->
+    <div class="page" id="page3">
+      <div class="page-content">
+        <div class="cert-header">
+          <div class="cert-university-name">ADITYA UNIVERSITY</div>
+          <div class="cert-university-subtext">Aditya Nagar, ADB Road, Surampalem, Andhra Pradesh, India</div>
+        </div>
+
+        <div class="cert-title">DECLARATION</div>
+
+        <div class="cert-body">
+          <p class="no-indent">
+            I hereby declare that the internship report entitled <strong>"SCADA DATA ANALYTICS & MACHINE LEARNING DASHBOARD"</strong> submitted to the Department of Information Technology, Aditya University, is a record of original work carried out by me during the summer Internship period under the guidance of <strong>Mr. Patnala Pattabhirama Mohan</strong>, Assistant Professor, Department of DS. We further declare that this work has not been submitted elsewhere for any degree or diploma.
+          </p>
+        </div>
+
+        <div class="signature-row" style="margin-top: 120px;">
+          <div class="signature-block" style="border: none;">
+            <div><strong>Date:</strong> 25.June.2026</div>
+          </div>
+          
+          <div class="signature-block">
+            <div class="signature-line"></div>
+            <strong>Student Signatures</strong>
+            <div style="margin-top: 10px; text-align: left; font-size: 11pt;">
+              1. K.Laxmi Priya (23A91A4429)<br>
+              2. SK.Mahaboobinnisa (23A91A4459)<br>
+              3. V.Likhitha (23A91A4465)
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page-footer">3</div>
+    </div>
+
+
+    <!-- PAGE 4: ACKNOWLEDGEMENT -->
+    <div class="page" id="page4">
+      <div class="page-content">
+        <h1 style="margin-bottom: 30px;">Acknowledgement</h1>
+
+        <p>
+          It is with immense pleasure that we would like to express our indebted gratitude to our project guide <strong>Mr. Patnala Pattabhirama Mohan</strong>, Assistant Professor, Department of Information Technology, who has guided us a lot and encouraged us in every step of the project work. His valuable moral support and guidance throughout the project helped us to a greater extent.
+        </p>
+        
+        <p>
+          We are grateful to <strong>Dr. Raja Babu</strong>, HOD, for inspiring us all the way and for arranging all the facilities and resources needed for our project.
+        </p>
+
+        <p>
+          We wish to thank our <strong>Dr. M.V. Rajesh</strong>, Associate Dean (School of Engineering), <strong>Dr. A Ramesh</strong>, Pro Vice-Chancellor (Engineering & Sciences), <strong>Dr. S. Rama Sree</strong>, Pro Vice-Chancellor (Academics), and <strong>Dr. G. Suresh</strong>, Registrar, for their encouragement and support during the course of our project.
+        </p>
+
+        <p>
+          We would like to extend our sincere thanks to <strong>Dr. M. B. Srinivas</strong>, Vice-Chancellor, <strong>Dr. M. Sreenivasa Reddy</strong>, Deputy Pro-Chancellor and Management, Aditya University, for their unconditional support in providing us with the best infrastructural facilities and state-of-the-art laboratories during our project.
+        </p>
+
+        <p>
+          Not to forget, <strong>Non-Teaching Staff</strong> and our <strong>Friends</strong> who have directly or indirectly supported us in completing this project on time.
+        </p>
+
+        <div class="signature-row" style="margin-top: 60px;">
+          <div></div>
+          <div class="signature-block" style="width: 250px;">
+            <div class="signature-line"></div>
+            <strong>Submitted by:</strong>
+            <div style="font-size: 11pt; margin-top: 5px;">
+              K.Laxmi Priya (23A91A4429)<br>
+              SK.Mahaboobinnisa (23A91A4459)<br>
+              V.Likhitha (23A91A4465)
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page-footer">4</div>
+    </div>
+
+
+    <!-- PAGE 5: INTERNSHIP COMPLETION CERTIFICATE -->
+    <div class="page" id="page5">
+      <div class="page-content" style="justify-content: center; align-items: center;">
+        <div class="certificate-mockup">
+          <div class="cert-mock-header">
+            <div class="cert-mock-logo">H TECHNICAL HUB</div>
+            <div class="cert-mock-date">Date: 26-06-2026</div>
+          </div>
+
+          <div class="cert-mock-title">Certificate of Internship</div>
+
+          <div class="cert-mock-body">
+            This is to certify that <strong>Ms. Katta Laxmipriya</strong>, of the <strong>Data Science</strong> department with Roll No: <strong>23A91A4429</strong> of <strong>Aditya Engineering College</strong> has successfully completed a summer internship with <strong>Technical Hub Pvt Ltd</strong> from <strong>04-05-2026</strong> to <strong>26-06-2026</strong>.
+            <br><br>
+            During this tenure, the trainee worked with the technology <strong>Data Specialist</strong> and excelled in major concepts:
+          </div>
+
+          <ul class="cert-mock-list">
+            <li><strong>Cloud Data Engineering & Analytics</strong></li>
+            <li><strong>Enterprise Workflow Automation</strong></li>
+            <li><strong>AI-Powered Low-Code Business Applications</strong></li>
+            <li><strong>Real-Time Monitoring & Smart Dashboards</strong></li>
+          </ul>
+
+          <div class="cert-mock-body" style="font-size: 10pt;">
+            The trainee has a great amount of responsibility, sincerity, and a genuine willingness to learn new things. We found the trainee's performance and conduct were satisfactory. We wish you all the best and success in your future endeavors.
+            <br>
+            <strong>Intern ID: THSI260131</strong>
+          </div>
+
+          <div class="cert-mock-signatures">
+            <div class="cert-mock-seal">
+              TECHNICAL<br>HUB<br>SEAL
+            </div>
+            <div style="text-align: center; font-size: 9.5pt;">
+              <div style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 16pt; color: #1e3a8a;">B. Neelam</div>
+              <div style="border-top: 1px solid #111827; width: 150px; margin: 4px auto 0 auto;"></div>
+              <strong>BABJI NEELAM</strong>
+              <div style="font-size: 8pt; color: #4b5563;">Founder & CEO</div>
+            </div>
+          </div>
+
+          <div class="cert-mock-footer-logos">
+            <span>MSME Govt of India</span> • 
+            <span>RedHat</span> • 
+            <span>Pega</span> • 
+            <span>Automation Anywhere</span> • 
+            <span>mile2</span>
+          </div>
+        </div>
+      </div>
+      <div class="page-footer">5</div>
+    </div>
+
+
+    <!-- PAGE 6: ABSTRACT -->
+    <div class="page" id="page6">
+      <div class="page-content">
+        <h1>1. ABSTRACT</h1>
+
+        <p>
+          The **SCADA Data Analytics & Machine Learning Dashboard** is a high-performance, responsive web application designed to act as an intelligent analytics extension to traditional industrial SCADA (Supervisory Control and Data Acquisition) monitors. Standard SCADA systems show raw sensor feeds but lack advanced visual trendings, automated multi-variable analytics, and predictive maintenance tools. This project bridges this gap by simulating real-time telemetry streaming (temperature, pressure, vibration, voltage, and current) from 5 virtual PLC machines (`MC_01` to `MC_05`) and applying machine learning to predict machine health and equipment failures.
+        </p>
+
+        <p>
+          The system uses a decoupled, full-stack architecture: a **FastAPI (Python)** backend handles dataset polling, threshold-rule evaluation, and ML predictions, while a **Next.js (TypeScript, React)** frontend provides an interactive, responsive dashboard. The backend incorporates a pre-trained **Random Forest Classifier** model trained via **Scikit-learn** to analyze live telemetry and estimate failure probabilities in real time. It also features a rule-based alert engine that monitors safe thresholds (e.g., Temperature > 80°C, Vibration > 5.0 mm/s) and populates a dynamic alarm log.
+        </p>
+
+        <p>
+          Using **Pandas** and **NumPy**, the backend processes the raw sensor CSV logs to compute system averages, peak variables, and active electrical loads (kW), immediately highlighting the highest energy consumer. The frontend uses **Recharts** to plot interactive multi-variable charts that reveal historical operational trends. This MVP demonstrates how modern web applications and data science techniques can supplement heavy industrial environments to prevent costly shutdowns and optimize resource utilization.
+        </p>
+      </div>
+      <div class="page-footer">6</div>
+    </div>
+
+
+    <!-- PAGE 7: SDG MAPPING -->
+    <div class="page" id="page7">
+      <div class="page-content">
+        <h1>2. SDG MAPPING</h1>
+
+        <p>
+          The **SCADA Data Analytics & Machine Learning Dashboard** project aligns with the United Nations Sustainable Development Goals (SDGs) by utilizing modern programming technologies and data science to optimize industrial efficiency, secure cleaner energy metrics, and safeguard operator environments.
+        </p>
+
+        <h3>SDG 9 – Industry, Innovation, and Infrastructure</h3>
+        <p>
+          This project is directly connected to SDG 9. Traditional SCADA infrastructures show raw numbers but do not predict failures. By integrating a Random Forest Classifier trained in Scikit-learn, this system introduces predictive maintenance (PdM). Early diagnostics allow technicians to service parts before a physical breakdown occurs. This prevents major equipment failures, cuts maintenance costs, and fosters resilient, modern industrial infrastructures.
+        </p>
+
+        <h3>SDG 12 – Responsible Consumption and Production</h3>
+        <p>
+          A core analytics feature of the application is the calculation of active electrical load (kW) and identifying the highest energy-consuming machine. By providing factory operators with clear, transparent metrics on electricity consumption, the dashboard supports resource conservation. Factories can identify energy-hogging equipment, coordinate load cycles, and minimize power waste, promoting sustainable production.
+        </p>
+
+        <h3>SDG 8 – Decent Work and Economic Growth</h3>
+        <p>
+          Industrial machinery failure can result in physical hazards for shop-floor technicians. The automated rule-based alarm system (monitoring dangerous limits of temperature, vibration, voltage, and current) provides early alerts. These instant warning dispatches promote employee safety and ensure a secure working environment, which supports steady economic productivity and decent work guidelines.
+        </p>
+      </div>
+      <div class="page-footer">7</div>
+    </div>
+
+
+    <!-- PAGE 8: INTRODUCTION -->
+    <div class="page" id="page8">
+      <div class="page-content">
+        <h1>INTRODUCTION</h1>
+
+        <p>
+          In modern manufacturing facilities, machines and production lines run continuously, streaming massive volumes of sensor telemetry to centralized displays. Traditionally, these readings are monitored by operators using standard SCADA (Supervisory Control and Data Acquisition) or HMI (Human Machine Interface) panels. However, standard panels usually display only current numbers and have static boundaries. When anomalies happen or multiple minor variables combine to cause a system breakdown, basic screens do not help operators predict the failure or discover which machine is operating inefficiently.
+        </p>
+
+        <p>
+          The **SCADA Data Analytics & Machine Learning Dashboard** is a software solution that addresses these limitations. Rather than acting as a full industrial hardware controller, this project is designed as an **analytics wrapper** around a SCADA CSV telemetry pipeline. It imports raw sensor logs (temperature, pressure, vibration, voltage, current) from virtual PLC nodes, handles data cleaning, calculates power statistics, evaluates safety rules, and generates health predictions using a pre-trained Random Forest model.
+        </p>
+
+        <p>
+          The system uses a modern web architecture. The **FastAPI** backend provides responsive REST endpoints, and the **Next.js** frontend provides a responsive interface. This ensures that operators can view operations on various devices, from office screens to mobile phones. By combining web development with data science libraries (Pandas and Scikit-learn), the project shows how factories can add predictive maintenance capabilities to their operations without expensive hardware overhauls.
+        </p>
+      </div>
+      <div class="page-footer">8</div>
+    </div>
+
+
+    <!-- PAGE 9: OBJECTIVES -->
+    <div class="page" id="page9">
+      <div class="page-content">
+        <h1>OBJECTIVES</h1>
+
+        <h3>Objective 1: Build a Live SCADA Telemetry Simulation Stream</h3>
+        <p>
+          Create a data polling flow that reads a historical CSV log containing sensor logs from 5 virtual machine nodes (`MC_01` to `MC_05`). The frontend polls this API every 5 seconds to simulate a live sensor stream, showing Temperature, Pressure, Vibration, Voltage, and Current.
+        </p>
+
+        <h3>Objective 2: Integrate a Predictive Maintenance ML Sandbox</h3>
+        <p>
+          Develop a predictive module utilizing a pre-trained Random Forest Classifier. The sandbox should allow operators to input sensor configurations (temperature, vibration, pressure, current, voltage) and receive failure probabilities along with system recommendations.
+        </p>
+
+        <h3>Objective 3: Implement an Automated Alarm Dispatch System</h3>
+        <p>
+          Formulate rules that monitor the incoming telemetry. If parameters exceed limits (e.g., Temperature > 80°C or Vibration > 5.0 mm/s), the system must generate a warning or critical alarm in the dashboard's alert log.
+        </p>
+
+        <h3>Objective 4: Provide Deep Data Analytics and Energy Calculations</h3>
+        <p>
+          Use Pandas to calculate aggregate averages, identify peak values, and compute the active electrical load (kW) of each machine. The dashboard must automatically identify the highest consumer of energy.
+        </p>
+
+        <h3>Objective 5: Construct a Scalable Decoupled Architecture</h3>
+        <p>
+          Build a decoupled layout using Next.js (TypeScript, React) and FastAPI (Python). The backend must support uploading custom telemetry CSV sheets and resetting the simulation data configuration.
+        </p>
+      </div>
+      <div class="page-footer">9</div>
+    </div>
+
+
+    <!-- PAGE 10: METHODOLOGY -->
+    <div class="page" id="page10">
+      <div class="page-content">
+        <h1>METHODOLOGY</h1>
+
+        <p>
+          The development of the **SCADA Data Analytics & Machine Learning Dashboard** followed a structured system engineering approach:
+        </p>
+        
+        <p>
+          First, a mock dataset representing 7 days of 5-minute interval sensor readings from 5 PLC machines was generated. This data covers normal operation and simulated failure conditions (e.g., high vibration and temperature spikes).
+        </p>
+
+        <p>
+          Second, the FastAPI backend was built. A data service was written using Pandas to load the CSV, stream rows during polling, and calculate averages. A model training script evaluated various classifiers (Logistic Regression, Decision Trees, and Random Forests). The Random Forest model achieved the highest classification accuracy and was saved to `model.pkl`.
+        </p>
+
+        <p>
+          Third, the Next.js frontend was set up. Dynamic UI dashboards, trend lines using Recharts, and rule-based visual badges were created to display live telemetry.
+        </p>
+
+        <h3 class="center-text">Tools, Platforms, and Programming Languages Used</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Technology</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Frontend</strong></td>
+              <td>Next.js, React.js, TypeScript, Tailwind CSS, Shadcn UI</td>
+            </tr>
+            <tr>
+              <td><strong>Backend</strong></td>
+              <td>FastAPI, Python, Uvicorn</td>
+            </tr>
+            <tr>
+              <td><strong>Data Processing</strong></td>
+              <td>Pandas, NumPy</td>
+            </tr>
+            <tr>
+              <td><strong>Machine Learning</strong></td>
+              <td>Scikit-learn (Random Forest Classifier)</td>
+            </tr>
+            <tr>
+              <td><strong>Visualization</strong></td>
+              <td>Recharts (React trend charts), Lucide React (Icons)</td>
+            </tr>
+            <tr>
+              <td><strong>Database / Data Source</strong></td>
+              <td>CSV File (7-day simulated PLC sensor telemetry log)</td>
+            </tr>
+            <tr>
+              <td><strong>Development Tools</strong></td>
+              <td>Visual Studio Code, Git, GitHub</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="page-footer">10</div>
+    </div>
+
+
+    <!-- PAGE 11: IMPLEMENTATION -->
+    <div class="page" id="page11">
+      <div class="page-content">
+        <h1>IMPLEMENTATION</h1>
+
+        <p>
+          The implementation of the dashboard is split into the `backend/` and `frontend/` directories:
+        </p>
+
+        <h3>1. Backend Development (FastAPI & ML)</h3>
+        <ul>
+          <li><strong>Data Ingestion:</strong> Located in `backend/app/services/data_service.py`, this service uses Pandas to parse the telemetry file. It handles simulation polling and resets.</li>
+          <li><strong>ML Classifier:</strong> Developed in `backend/ml/train_model.py`. The script trains a Random Forest Classifier using features: `Temperature`, `Pressure`, `Vibration`, `Voltage`, `Current`. The trained model is saved as `model.pkl` in `backend/app/models/` and loaded during FastAPI startup to handle dynamic predictions.</li>
+          <li><strong>API Router:</strong> In `backend/app/controllers/sensor_controller.py`, REST endpoints return live telemetry data, aggregated analytics, failure predictions, and handle CSV uploads.</li>
+        </ul>
+
+        <h3>2. Frontend Development (Next.js & Recharts)</h3>
+        <ul>
+          <li><strong>Telemetry Cards:</strong> Built in `frontend/app/page.tsx`, displaying live Temperature, Pressure, Vibration, Voltage, and Current. Dynamic badges change colors (Green, Yellow, Red) based on threshold logic.</li>
+          <li><strong>Trend Charts:</strong> Built using Recharts, creating responsive line charts that display multi-variable trends over time.</li>
+          <li><strong>Sandbox Predictor:</strong> Interactive sliders allow operators to adjust telemetry values and query the backend ML model to observe changes in failure probability.</li>
+        </ul>
+
+        <div style="border: 1px dashed #777; padding: 15px; background: #fafafa; font-size: 10pt; margin-top: 15px;">
+          <strong>Core Project Folder Structure:</strong>
+          <pre style="font-family: monospace; margin-top: 5px;">
+SCADA_Project/
+├── backend/
+│   ├── app/
+│   │   ├── controllers/sensor_controller.py
+│   │   ├── data/sensor_data.csv
+│   │   ├── models/schemas.py, model.pkl
+│   │   ├── services/data_service.py
+│   │   └── main.py
+│   ├── ml/generate_data.py, train_model.py
+│   └── requirements.txt
+└── frontend/
+    ├── app/layout.tsx, page.tsx
+    ├── package.json
+    └── tsconfig.json
+          </pre>
+        </div>
+      </div>
+      <div class="page-footer">11</div>
+    </div>
+
+
+    <!-- PAGE 12: RESULTS & OUTCOMES -->
+    <div class="page" id="page12">
+      <div class="page-content">
+        <h1>RESULTS & OUTCOMES</h1>
+
+        <p>
+          The **SCADA Data Analytics & Machine Learning Dashboard** was successfully developed and tested as a functional web application prototype. The decoupled services communicate reliably on localhost.
+        </p>
+
+        <div style="border: 1px solid #ddd; margin: 15px 0; padding: 15px; background: #fdfdfd; display: flex; flex-direction: column; align-items: center;">
+          <div style="font-weight: bold; margin-bottom: 10px; font-size: 10pt; color: #555;">[Dashboard Visualization Mockup]</div>
+          <svg viewBox="0 0 400 180" width="100%" height="150" style="background: #1e293b; border-radius: 6px;">
+            <!-- Grid lines -->
+            <line x1="40" y1="20" x2="380" y2="20" stroke="#334155" stroke-dasharray="2"/>
+            <line x1="40" y1="60" x2="380" y2="60" stroke="#334155" stroke-dasharray="2"/>
+            <line x1="40" y1="100" x2="380" y2="100" stroke="#334155" stroke-dasharray="2"/>
+            <line x1="40" y1="140" x2="380" y2="140" stroke="#334155"/>
+            <!-- Line Graph -->
+            <path d="M40,110 L90,105 L140,80 L190,120 L240,60 L290,50 L340,30 L380,25" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+            <path d="M40,120 L90,125 L140,110 L190,130 L240,115 L290,95 L340,85 L380,80" fill="none" stroke="#f43f5e" stroke-width="2.5"/>
+            <!-- Labels -->
+            <text x="50" y="155" fill="#94a3b8" font-size="8">12:00</text>
+            <text x="140" y="155" fill="#94a3b8" font-size="8">12:05</text>
+            <text x="230" y="155" fill="#94a3b8" font-size="8">12:10</text>
+            <text x="320" y="155" fill="#94a3b8" font-size="8">12:15</text>
+            <text x="15" y="65" fill="#94a3b8" font-size="8" transform="rotate(-90, 15, 65)">Temp (°C)</text>
+          </svg>
+          <div style="font-size: 8.5pt; color: #666; margin-top: 5px; font-style: italic;">Figure: Interactive trend monitoring of temperature and vibration curves.</div>
+        </div>
+
+        <h3>Key Project Outcomes</h3>
+        <ul>
+          <li><strong>Simulated Telemetry Polling:</strong> The Next.js frontend updates every 5 seconds, displaying values from the active sensor array.</li>
+          <li><strong>Rule-Based Alarm Log:</strong> Instantly displays warnings when temperature crosses 80°C or vibration exceeds 5.0 mm/s.</li>
+          <li><strong>Random Forest Classification:</strong> Integrates predictions into the dashboard, displaying the probability of machine failure.</li>
+          <li><strong>Statistical Summaries:</strong> Generates average metrics for each machine, identifies peaks, and calculates active load to flag the highest energy consumer.</li>
+          <li><strong>CSV Operations:</strong> Operators can upload new dataset files, supporting testing across different operational distributions.</li>
+        </ul>
+      </div>
+      <div class="page-footer">12</div>
+    </div>
+
+
+    <!-- PAGE 13: KEY LEARNINGS -->
+    <div class="page" id="page13">
+      <div class="page-content">
+        <h1>KEY LEARNINGS</h1>
+
+        <p>
+          The development of the **SCADA Data Analytics & Machine Learning Dashboard** provided hands-on experience in full-stack web development and data science:
+        </p>
+
+        <h3>1. Web Frameworks & API Architectures</h3>
+        <p>
+          Building the application using FastAPI highlighted the value of structured endpoints and automated schemas in Python. Connecting it to React and Next.js demonstrated how to manage asynchronous state polling, handle CORS rules, and structure dynamic components.
+        </p>
+
+        <h3>2. Practical Data Processing</h3>
+        <p>
+          Using Pandas for live data slicing was a key learning. Slicing rows dynamically, calculating running metrics, and handling missing telemetry values showed how database files can support simulated feeds.
+        </p>
+
+        <h3>3. Model Serialization and Serving</h3>
+        <p>
+          Training the machine learning model in a separate script (`train_model.py`) and saving it using pickle (`model.pkl`) showed how models are deployed. Loading this file at API start and running fast predictions showed how to serve ML models in production.
+        </p>
+
+        <h3>4. Professional Engineering Skills</h3>
+        <p>
+          Breaking down a project into an MVP development checklist taught valuable planning skills. The internship helped improve problem-solving, debugging CORS issues, managing NPM packages, and configuring Python virtual environments.
+        </p>
+      </div>
+      <div class="page-footer">13</div>
+    </div>
+
+
+    <!-- PAGE 14: CONCLUSION -->
+    <div class="page" id="page14">
+      <div class="page-content">
+        <h1>CONCLUSION & FUTURE SCOPE</h1>
+
+        <h3>Conclusion</h3>
+        <p>
+          The **SCADA Data Analytics & Machine Learning Dashboard** successfully demonstrates how to build an analytical wrapper for SCADA telemetry data. By combining FastAPI and Next.js with data science libraries (Pandas and Scikit-learn), the system provides interactive dashboard analytics, rule-based alarm alerts, and machine health predictions.
+        </p>
+        
+        <p>
+          The pre-trained Random Forest model achieves high classification accuracy, validating that simple ML models can estimate failure risks based on temperature, pressure, vibration, voltage, and current. This MVP highlights how data science can add predictive capabilities to raw factory monitoring systems.
+        </p>
+
+        <h3>Future Scope</h3>
+        <ul>
+          <li><strong>Direct PLC Communication:</strong> Replace the CSV file simulation with active protocols like **OPC UA** or **Modbus** to stream data directly from physical PLCs.</li>
+          <li><strong>Time-Series Databases:</strong> Integrate specialized databases like **InfluxDB** or **TimescaleDB** to handle high-frequency sensor inputs efficiently.</li>
+          <li><strong>Deep Learning Classifiers:</strong> Test and evaluate time-series deep learning models (such as **LSTMs**) to forecast machine failures hours in advance.</li>
+          <li><strong>Webhook Notifications:</strong> Integrate third-party email, Slack, or Twilio SMS APIs to dispatch warning alerts to off-site maintenance engineers automatically.</li>
+        </ul>
+      </div>
+      <div class="page-footer">14</div>
+    </div>
+
+
+    <!-- PAGE 15: OUTCOMES -->
+    <div class="page" id="page15">
+      <div class="page-content">
+        <h1>OUTCOMES</h1>
+
+        <p>
+          The successful implementation of the SCADA Data Analytics dashboard resulted in several outcomes that align with modern industrial requirements:
+        </p>
+
+        <p>
+          First, it provides a centralized web dashboard that integrates data analytics and machine learning. Instead of using separate tools for visual graphing, statistics, and machine diagnostics, operators can monitor all three in one place.
+        </p>
+
+        <p>
+          Second, it demonstrates the value of using pre-trained machine learning classifiers to predict equipment failures. By analyzing multi-variable relationships (such as voltage anomalies combined with vibration spikes), the system can warn operators of failure risks before a single threshold is breached.
+        </p>
+
+        <p>
+          Third, the decoupled backend structure is scalable. Because the API endpoints return standard JSON data, the frontend can be extended to include mobile apps or smartwatch notifications without modifying the data analysis engine.
+        </p>
+
+        <h3>Key Deliverables Completed</h3>
+        <ul>
+          <li>Completed a working web prototype running on FastAPI and Next.js.</li>
+          <li>Simulated live telemetry feeds (temperature, pressure, vibration, voltage, current) for 5 machines.</li>
+          <li>Developed automated threshold alerts for dangerous machine conditions.</li>
+          <li>Integrated a pre-trained Random Forest model for failure probability predictions.</li>
+          <li>Provided detailed averages and identified the highest energy-consuming machine.</li>
+        </ul>
+      </div>
+      <div class="page-footer">15</div>
+    </div>
+
+
+    <!-- PAGE 16: PRODUCT DEVELOPMENT -->
+    <div class="page" id="page16">
+      <div class="page-content">
+        <h1>Product Development</h1>
+
+        <p>
+          The internship project was completed as a product development cycle, moving from requirements gathering to testing:
+        </p>
+
+        <h3>1. Requirements and Architecture Design</h3>
+        <p>
+          The product requirements specified that the dashboard must display telemetry trends, calculate energy metrics, trigger threshold alerts, and provide machine health predictions. A decoupled architecture (FastAPI backend + Next.js frontend) was selected to ensure the application is responsive and scalable.
+        </p>
+
+        <h3>2. Backend and ML Development</h3>
+        <p>
+          A Python script generated simulated sensor readings, creating normal, warning, and failure patterns. Pandas was used to build the data service layer. A Random Forest model was selected for classification due to its performance, and was saved as `model.pkl` using pickle.
+        </p>
+
+        <h3>3. Frontend and Visuals</h3>
+        <p>
+          The Next.js user interface was styled with CSS and Tailwind. Cards display real-time sensor values, and Recharts line graphs show historical trends. A prediction sandbox was added, allowing operators to input values and query the ML model.
+        </p>
+
+        <h3>4. Integration and Testing</h3>
+        <p>
+          The frontend and backend were connected using standard REST APIs. Testing validated that the dashboard updates every 5 seconds, alerts trigger correctly, and ML model predictions return without errors.
+        </p>
+      </div>
+      <div class="page-footer">16</div>
+    </div>
+
+
+    <!-- PAGE 17: ABOUT THE COMPANY -->
+    <div class="page" id="page17">
+      <div class="page-content">
+        <h1>ABOUT THE COMPANY</h1>
+
+        <p class="no-indent">
+          <strong>Technical Hub Pvt. Ltd.</strong> is a technology training and innovation company established in <strong>2016</strong>. The organization focuses on bridging the gap between academic education and industry requirements. It provides high-quality training, internships, certification programs, and project-based learning in emerging technologies such as Artificial Intelligence, Data Science, Cloud Computing, Full Stack Development, Cyber Security, DevOps, IoT, and Robotic Process Automation (RPA).
+        </p>
+
+        <p>
+          The company collaborates with educational institutions and industry partners to deliver real-world learning experiences through workshops, hackathons, internships, coding contests, placement training, and innovation programs. During the internship, students gain practical exposure to current technologies while working on industry-level projects under the guidance of experienced mentors. Technical Hub emphasizes problem-solving, teamwork, communication skills, and continuous learning, enabling students to develop their professional and technical capabilities.
+        </p>
+
+        <h3>Mission:</h3>
+        <p class="no-indent">
+          To empower students and professionals with industry-relevant technical skills through innovative learning, practical training, real-world projects, and continuous mentorship, thereby enhancing employability and career growth.
+        </p>
+
+        <h3>Vision:</h3>
+        <p class="no-indent">
+          To become a globally recognized technology learning and innovation platform that nurtures skilled professionals, promotes innovation, and bridges the gap between academia and industry through advanced technical education and hands-on experience.
+        </p>
+      </div>
+      <div class="page-footer">17</div>
+    </div>
+
+  </div>
+
+  <script>
+    // Navigation highlighting helper
+    const viewer = document.getElementById('viewer-area');
+    const pages = document.querySelectorAll('.page');
+    const menuItems = document.querySelectorAll('.menu-item');
+
+    viewer.addEventListener('scroll', () => {
+      let currentActiveId = '';
+      pages.forEach(page => {
+        const top = page.offsetTop - 100;
+        if (viewer.scrollTop >= top) {
+          currentActiveId = page.getAttribute('id');
+        }
+      });
+
+      if (currentActiveId) {
+        menuItems.forEach(item => {
+          item.classList.remove('active');
+          if (item.getAttribute('href') === '#' + currentActiveId) {
+            item.classList.add('active');
+          }
+        });
+      }
+    });
+
+    function activateLink(clickedItem) {
+      menuItems.forEach(item => item.classList.remove('active'));
+      clickedItem.classList.add('active');
+    }
+  </script>
+</body>
+</html>
