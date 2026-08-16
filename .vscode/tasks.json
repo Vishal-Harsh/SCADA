@@ -1,0 +1,49 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Setup & Start FastAPI Backend",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoExit",
+        "-Command",
+        "cd backend; if (-not (Test-Path .venv)) { echo 'Creating Virtual Environment...'; python -m venv .venv }; echo 'Installing Dependencies...'; .venv/Scripts/pip install -r requirements.txt; echo 'Generating Data & Training ML Model...'; .venv/Scripts/python ml/generate_data.py; .venv/Scripts/python ml/train_model.py; echo 'Starting FastAPI Server...'; .venv/Scripts/python -m uvicorn app.main:app --port 8000 --reload"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "group": "scada-group"
+      }
+    },
+    {
+      "label": "Setup & Start Next.js Frontend",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoExit",
+        "-Command",
+        "cd frontend; echo 'Installing Frontend Dependencies...'; npm install; echo 'Starting Next.js Dev Server...'; npm run dev"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "group": "scada-group"
+      }
+    },
+    {
+      "label": "Run SCADA App (Frontend & Backend)",
+      "dependsOn": [
+        "Setup & Start FastAPI Backend",
+        "Setup & Start Next.js Frontend"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
