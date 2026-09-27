@@ -23,6 +23,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import {
   LineChart,
@@ -42,6 +49,11 @@ import {
 // Configuration
 const BACKEND_URL = "http://127.0.0.1:8000";
 const POLLING_INTERVAL_MS = 5000;
+const MACHINES = ["MC_01", "MC_02", "MC_03", "MC_04", "MC_05"];
+
+function formatMachineName(machine: string) {
+  return machine.replace(/^MC_0?/, "MC ");
+}
 
 // Reusable Minimalistic Custom Horizontal Spark Gauge component
 function TelemetryCard({
@@ -67,39 +79,39 @@ function TelemetryCard({
   let statusColor = "bg-primary";
   let statusTextColor = "text-primary font-bold";
   let cardBg = "bg-card";
-  let cardBorder = "border-border/60";
+  let cardBorder = "border-border";
 
   if (isCritical) {
     statusColor = "bg-red-500";
     statusTextColor = "text-red-600 dark:text-red-400 font-extrabold";
     cardBg = "bg-red-500/5";
-    cardBorder = "border-red-500/15";
+    cardBorder = "border-red-500/40";
   } else if (isWarning) {
     statusColor = "bg-amber-500";
     statusTextColor = "text-amber-600 dark:text-amber-450 font-bold";
     cardBg = "bg-amber-500/5";
-    cardBorder = "border-amber-500/15";
+    cardBorder = "border-amber-500/40";
   }
 
   const pct = Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100));
 
   return (
-    <div className={`p-4 rounded-xl border ${cardBorder} ${cardBg} flex flex-col justify-between h-28 transition-all duration-300`}>
+    <div className={`p-5 rounded-xl border-2 ${cardBorder} ${cardBg} flex flex-col justify-between min-h-32 transition-all duration-300 shadow-[0_2px_0_rgba(27,37,24,0.04)]`}>
       <div className="flex justify-between items-start">
-        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{label}</span>
-        <span className={`text-[9px] uppercase tracking-wider ${statusTextColor}`}>
+        <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.12em]">{label}</span>
+        <span className={`text-xs uppercase tracking-wider ${statusTextColor}`}>
           {isCritical ? "CRITICAL" : isWarning ? "WARNING" : "NORMAL"}
         </span>
       </div>
-      <div className="flex items-baseline gap-1 my-1">
-        <span className="text-2xl font-bold font-mono tracking-tight text-foreground">{value.toFixed(1)}</span>
-        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">{unit}</span>
+      <div className="flex items-baseline gap-2 my-2">
+        <span className="text-3xl font-semibold font-mono tracking-tight text-foreground">{value.toFixed(1)}</span>
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{unit}</span>
       </div>
       <div className="space-y-1">
         <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
           <div className={`h-full ${statusColor} rounded-full transition-all duration-500`} style={{ width: `${pct}%` }} />
         </div>
-        <div className="flex justify-between text-[8px] text-muted-foreground/60 font-mono font-semibold">
+        <div className="flex justify-between text-xs text-muted-foreground font-mono font-semibold">
           <span>{min}</span>
           <span>{max}</span>
         </div>
@@ -291,42 +303,43 @@ export default function SCADADashboard() {
 
   const activeMachineData = getActiveMachineReading();
   const machineStats = getSelectedMachineStats();
+  const selectedMachineLabel = formatMachineName(selectedMachine);
 
   return (
     <div className={theme === "dark" ? "dark" : ""}>
-      <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-300">
+        <div className="dashboard-shell min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-300">
         
-        {/* Sleek Top Navigation Header */}
-        <header className="w-full bg-card border-b border-border/60 px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm shadow-primary/10">
-              <Cpu className="h-4 w-4" />
+        {/* Dashboard header */}
+        <header className="w-full bg-card border-b-2 border-border px-5 py-4 md:px-8 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+          <div className="flex items-center gap-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shadow-primary/20">
+              <Cpu className="h-5 w-5" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">
-                <span>SCADA Pipeline</span>
+              <div className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground uppercase tracking-[0.16em] leading-none">
+                <span>Industrial Telemetry</span>
                 <span>/</span>
-                <span className="text-foreground">{selectedMachine}</span>
+                <span className="text-primary">{selectedMachineLabel}</span>
               </div>
-              <h1 className="text-sm font-bold tracking-tight text-foreground mt-0.5">
-                Core Instrumentation Pipeline
+              <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground mt-1.5">
+                Machine Operations
               </h1>
             </div>
           </div>
 
-          <div className="flex items-center flex-wrap gap-4 text-xs font-semibold text-muted-foreground">
-            <div className="flex items-center gap-1.5 bg-secondary/80 px-2.5 py-1 rounded-md border border-border">
-              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>PLC Sync: <strong className="text-foreground font-mono">{secondsSinceUpdate}s ago</strong></span>
+          <div className="flex items-center flex-wrap gap-3 text-sm font-medium text-muted-foreground">
+            <div className="flex items-center gap-2 bg-secondary px-3 py-2 rounded-lg border border-border">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span>Updated <strong className="text-foreground font-mono">{secondsSinceUpdate}s ago</strong></span>
             </div>
 
             {isBackendConnected ? (
-              <Badge className="bg-primary/10 text-primary border border-primary/20 font-bold px-2 py-0.5 rounded text-[9px] shadow-none flex items-center gap-1">
-                <span className="h-1 w-1 rounded-full bg-primary animate-pulse" />
-                SERVER ONLINE
+              <Badge className="bg-primary/10 text-primary border border-primary/30 font-bold px-3 py-1.5 rounded-md text-xs shadow-none flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                API CONNECTED
               </Badge>
             ) : (
-              <Badge className="bg-red-500/10 text-red-655 dark:text-red-400 border border-red-500/20 font-bold px-2 py-0.5 rounded text-[9px] shadow-none flex items-center gap-1">
+              <Badge className="bg-red-500/10 text-red-700 dark:text-red-400 border border-red-500/30 font-bold px-3 py-1.5 rounded-md text-xs shadow-none flex items-center gap-2">
                 <WifiOff className="h-2.5 w-2.5" />
                 SERVER OFFLINE
               </Badge>
@@ -337,7 +350,7 @@ export default function SCADADashboard() {
               <button
                 onClick={handleResetData}
                 disabled={isResetting || !isBackendConnected}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-md border border-border bg-card hover:bg-secondary disabled:opacity-50 text-foreground transition-all text-[11px] font-bold cursor-pointer"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-lg border-2 border-border bg-card hover:bg-secondary disabled:opacity-50 text-foreground transition-all text-sm font-semibold cursor-pointer"
               >
                 <RotateCcw className={`h-3 w-3 ${isResetting ? "animate-spin" : ""}`} />
                 Reset Data
@@ -345,7 +358,7 @@ export default function SCADADashboard() {
 
               <button
                 onClick={toggleTheme}
-                className="p-1 rounded-md border border-border bg-card text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                className="p-2 rounded-lg border-2 border-border bg-card text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
                 title={theme === "dark" ? "Light Theme" : "Dark Theme"}
               >
                 {theme === "dark" ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
@@ -355,8 +368,8 @@ export default function SCADADashboard() {
         </header>
 
         {/* Navigation Tabs & Node Selector Bar */}
-        <div className="w-full bg-card border-b border-border/50 px-6 flex justify-between items-center gap-4 flex-wrap">
-          <div className="flex gap-6">
+        <div className="w-full bg-card/95 border-b-2 border-border px-5 md:px-8 flex justify-between items-center gap-4 flex-wrap">
+          <div className="flex gap-3 md:gap-7">
             {[
               { id: "dashboard", label: "Dashboard & Alarms", icon: LayoutDashboard },
               { id: "trends", label: "History & Analytics", icon: TrendingUp },
@@ -368,7 +381,7 @@ export default function SCADADashboard() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 py-3.5 text-xs font-bold uppercase tracking-widest relative transition-all cursor-pointer ${
+                  className={`flex items-center gap-2 py-4 text-sm font-semibold relative transition-all cursor-pointer ${
                     isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -382,33 +395,33 @@ export default function SCADADashboard() {
             })}
           </div>
 
-          {/* Machine selector inside top control bar */}
-          <div className="flex items-center gap-1 py-2">
-            {["MC_01", "MC_02", "MC_03", "MC_04", "MC_05"].map((m) => (
-              <button
-                key={m}
-                onClick={() => setSelectedMachine(m)}
-                className={`px-3 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
-                  selectedMachine === m
-                    ? "bg-secondary text-primary border border-border"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {m}
-              </button>
-            ))}
+          {/* Machine selector */}
+          <div className="flex items-center gap-3 py-2">
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-[0.12em]">Machine</span>
+            <Select value={selectedMachine} onValueChange={(value) => value && setSelectedMachine(value)}>
+              <SelectTrigger aria-label="Select machine" className="h-11 min-w-40 border-2 border-border bg-background px-3.5 text-sm font-semibold shadow-[0_2px_0_rgba(27,37,24,0.05)] focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/25">
+                <SelectValue>{selectedMachineLabel}</SelectValue>
+              </SelectTrigger>
+              <SelectContent align="end" className="border-2 border-border shadow-xl">
+                {MACHINES.map((machine) => (
+                  <SelectItem key={machine} value={machine} className="min-h-10 text-sm font-medium">
+                    {formatMachineName(machine)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         {/* Main Content Area */}
-        <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto flex flex-col gap-6 overflow-y-auto">
+        <main className="flex-1 p-5 md:p-8 max-w-[1600px] w-full mx-auto flex flex-col gap-7 overflow-y-auto">
           
           {/* Connection Offline Alert */}
           {!isBackendConnected && (
-            <Alert className="border-red-200 bg-red-500/5 text-red-655 dark:text-red-400 rounded-xl shadow-none">
+            <Alert className="border-2 border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300 rounded-xl shadow-none">
               <WifiOff className="h-4 w-4 text-red-500" />
               <AlertTitle className="font-bold">FastAPI Connection Offline</AlertTitle>
-              <AlertDescription className="text-xs mt-1 leading-relaxed">
+              <AlertDescription className="text-sm mt-1 leading-relaxed">
                 SCADA Dashboard cannot sync live telemetry at <code className="bg-red-100 dark:bg-red-950 px-1 py-0.5 rounded font-mono font-bold text-red-900 dark:text-red-400">{BACKEND_URL}</code>. 
                 Please start the python server to resume automatic updates.
               </AlertDescription>
@@ -418,8 +431,8 @@ export default function SCADADashboard() {
           {isLoading && isBackendConnected ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 py-32">
               <RefreshCw className="h-8 w-8 text-primary animate-spin" />
-              <span className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
-                Acquiring PLC Telemetry...
+              <span className="text-muted-foreground text-sm font-semibold tracking-wide">
+                Loading machine telemetry...
               </span>
             </div>
           ) : (
@@ -427,26 +440,27 @@ export default function SCADADashboard() {
 
               {/* 1. DASHBOARD & ALARMS VIEW */}
               {activeTab === "dashboard" && (
-                <div className="space-y-6">
+                <div className="space-y-7">
                   
                   {/* Telemetry Section Title */}
-                  <div className="flex justify-between items-center px-1">
+                  <div className="flex justify-between items-end gap-4 px-1">
                     <div className="flex items-center gap-2">
-                      <span className="relative flex h-1.5 w-1.5">
+                      <span className="relative flex h-2.5 w-2.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
                       </span>
-                      <span className="text-xs font-bold text-muted-foreground tracking-widest uppercase">
-                        Live stream &bull; {selectedMachine}
-                      </span>
+                      <div>
+                        <h2 className="text-xl md:text-2xl font-semibold tracking-tight">Live telemetry</h2>
+                        <p className="text-sm text-muted-foreground mt-0.5">Current readings for {selectedMachineLabel}</p>
+                      </div>
                     </div>
-                    <span className="text-[10px] font-mono font-bold text-muted-foreground bg-secondary/80 px-2 py-0.5 rounded-md border border-border">
-                      Virtual Clock: {activeMachineData.Time || "Loading..."}
-                    </span>
+                    <span className="text-xs md:text-sm font-mono font-medium text-foreground bg-card px-3 py-2 rounded-lg border-2 border-border">
+                      Sample time · {activeMachineData.Time || "Waiting for data"}
+                      </span>
                   </div>
 
                   {/* Horizontal Gauges Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
                     <TelemetryCard
                       label="Temperature"
                       value={activeMachineData.Temperature}
@@ -480,8 +494,7 @@ export default function SCADADashboard() {
                       min={170}
                       max={260}
                       unit="V"
-                      warnThreshold={(v) => v < 200 || v > 240}
-                      critThreshold={(v) => v < 190 || v > 245}
+                       warnThreshold={(v) => v < 195 || v > 245}
                     />
                     <TelemetryCard
                       label="Current"
@@ -495,42 +508,42 @@ export default function SCADADashboard() {
                   </div>
 
                   {/* Combined Section: Active Alarms and Nodes List */}
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 pt-2">
                     
                     {/* Alarms Feed Card */}
-                    <div className="lg:col-span-2 bg-card rounded-xl border border-border/60 p-6 space-y-4">
-                      <div className="flex items-center justify-between border-b border-border/40 pb-3">
+                    <div className="lg:col-span-2 bg-card rounded-2xl border-2 border-border p-6 md:p-7 space-y-5 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                      <div className="flex items-center justify-between border-b-2 border-border pb-4">
                         <div>
-                          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                          <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                             <AlertTriangle className="h-4.5 w-4.5 text-amber-500 animate-pulse" />
                             System Alarm Log
                           </h3>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">
-                            Recent safety parameter violations registered by PLC rules
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Recent sensor readings outside their operating limits
                           </p>
                         </div>
-                        <Badge className="bg-secondary text-foreground border border-border/80 font-bold px-2 py-0.5 rounded text-[10px] shadow-none">
-                          {alerts.slice(0, 20).length} Alerts
+                        <Badge className="bg-secondary text-foreground border-2 border-border font-bold px-3 py-1 rounded-md text-xs shadow-none">
+                          {alerts.length} {alerts.length === 1 ? "Alert" : "Alerts"}
                         </Badge>
                       </div>
 
-                      <div className="border-l border-border/60 pl-4 ml-2 space-y-4 max-h-[350px] overflow-y-auto">
+                      <div className="border-l-2 border-border pl-5 ml-2 space-y-4 max-h-[390px] overflow-y-auto">
                         {alerts.length > 0 ? (
                           alerts.slice(0, 15).map((alert) => {
                             const isCritical = alert.severity === "CRITICAL";
                             return (
-                              <div key={alert.id} className="relative flex items-start gap-3 text-xs py-0.5">
+                              <div key={alert.id} className={`relative flex items-start gap-3 text-sm py-3 px-3 rounded-lg border ${isCritical ? "bg-red-50/70 border-red-200 dark:bg-red-950/20 dark:border-red-900" : "bg-amber-50/70 border-amber-200 dark:bg-amber-950/20 dark:border-amber-900"}`}>
                                 {/* Timeline Dot */}
                                 <span className={`absolute -left-[21.5px] top-1.5 h-2.5 w-2.5 rounded-full border-2 bg-background transition-colors duration-305 ${isCritical ? "border-red-500" : "border-amber-500"}`} />
                                 <div className="flex-1 space-y-1">
                                   <div className="flex justify-between items-baseline gap-2">
-                                    <span className="font-bold text-foreground">{alert.machine} &bull; <strong className="text-primary font-bold">{alert.parameter}</strong></span>
-                                    <span className="font-mono text-[9px] text-muted-foreground">{alert.time.split(" ")[1] || alert.time}</span>
+                                    <span className="font-semibold text-foreground">{formatMachineName(alert.machine)} <span className="text-muted-foreground">·</span> <strong className="text-foreground font-semibold">{alert.parameter}</strong></span>
+                                    <span className="font-mono text-xs text-muted-foreground">{alert.time.split(" ")[1] || alert.time}</span>
                                   </div>
-                                  <div className="flex items-center gap-3 text-muted-foreground text-[11px]">
-                                    <span>Value: <strong className="text-red-600 dark:text-red-400 font-mono font-bold">{alert.value.toFixed(2)}</strong></span>
-                                    <span>Limit: {alert.threshold.toFixed(1)}</span>
-                                    <span className={`text-[9px] font-extrabold uppercase px-1 rounded ${isCritical ? "bg-red-500/10 text-red-600" : "bg-amber-500/10 text-amber-600"}`}>
+                                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-xs mt-1">
+                                    <span>Reading <strong className="text-foreground font-mono font-semibold">{alert.value.toFixed(2)}</strong></span>
+                                    <span>Limit <strong className="text-foreground font-mono font-medium">{alert.threshold.toFixed(1)}</strong></span>
+                                    <span className={`text-[11px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border ${isCritical ? "bg-red-100 text-red-800 border-red-300 dark:bg-red-950 dark:text-red-300 dark:border-red-800" : "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800"}`}>
                                       {alert.severity}
                                     </span>
                                   </div>
@@ -541,49 +554,50 @@ export default function SCADADashboard() {
                         ) : (
                           <div className="h-[200px] flex flex-col items-center justify-center text-muted-foreground text-center space-y-2">
                             <CheckCircle2 className="h-8 w-8 text-primary" />
-                            <h4 className="text-xs font-bold text-foreground">All Systems Healthy</h4>
-                            <p className="text-[10px] text-muted-foreground">All telemetry parameters are operating below warning limits.</p>
+                            <h4 className="text-base font-semibold text-foreground">All systems normal</h4>
+                            <p className="text-sm text-muted-foreground">No recent readings have exceeded their alert limits.</p>
                           </div>
                         )}
                       </div>
                     </div>
 
                     {/* Nodes Status list */}
-                    <div className="bg-card rounded-xl border border-border/60 p-6 space-y-4">
-                      <div className="flex items-center justify-between border-b border-border/40 pb-3">
+                    <div className="bg-card rounded-2xl border-2 border-border p-6 md:p-7 space-y-5 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                      <div className="flex items-center justify-between border-b-2 border-border pb-4">
                         <div>
-                          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                          <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                             <Activity className="h-4.5 w-4.5 text-primary" />
-                            PLC Node Rack
+                            Machine status
                           </h3>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">
-                            Live summaries across all virtual units
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Select a machine to focus the dashboard
                           </p>
                         </div>
                       </div>
 
                       <div className="space-y-2 max-h-[350px] overflow-y-auto">
                         {currentReadings.map((mach) => {
-                          const isAlerting = mach.Fault === 1 || mach.Temperature > 80.0 || mach.Vibration > 5.0;
+                          const isAlerting = mach.Fault === 1 || mach.Temperature > 80.0 || mach.Vibration > 5.0 || alerts.some((alert) => alert.machine === mach.Machine);
                           return (
-                            <div
+                              <button
+                                type="button"
                               key={mach.Machine}
                               onClick={() => setSelectedMachine(mach.Machine)}
-                              className={`p-3 rounded-lg border transition-all duration-200 cursor-pointer flex justify-between items-center ${
+                                className={`w-full text-left p-3.5 rounded-xl border-2 transition-all duration-200 cursor-pointer flex justify-between items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
                                 selectedMachine === mach.Machine
-                                  ? "bg-secondary/60 border-primary/30"
-                                  : "bg-card border-border/40 hover:border-primary/20"
+                                    ? "bg-secondary border-primary/60"
+                                    : "bg-card border-border hover:border-primary/50"
                               }`}
                             >
                               <div className="flex items-center gap-2">
                                 <span className={`h-2.5 w-2.5 rounded-full ${isAlerting ? "bg-red-500 animate-pulse" : "bg-primary"}`} />
-                                <span className="text-xs font-bold text-foreground">{mach.Machine}</span>
+                                <span className="text-sm font-semibold text-foreground">{formatMachineName(mach.Machine)}</span>
                               </div>
-                              <div className="flex gap-3 text-[10px] font-mono text-muted-foreground font-semibold">
+                              <div className="flex gap-3 text-xs font-mono text-muted-foreground font-semibold">
                                 <span>{mach.Temperature.toFixed(0)}°C</span>
                                 <span>{mach.Vibration.toFixed(1)} mm/s</span>
                               </div>
-                            </div>
+                              </button>
                           );
                         })}
                       </div>
@@ -598,61 +612,61 @@ export default function SCADADashboard() {
                 <div className="space-y-6">
                   
                   {/* SaaS Metric Stat Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     
                     {/* Temp Stats Card */}
-                    <div className="bg-card border border-border/60 rounded-xl p-5 space-y-2">
-                      <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest block">
-                        Temperature averages ({selectedMachine})
+                    <div className="bg-card border-2 border-border rounded-2xl p-6 space-y-3 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                      <span className="text-xs text-muted-foreground font-bold uppercase tracking-[0.12em] block">
+                        Temperature average · {selectedMachineLabel}
                       </span>
                       <div className="flex items-baseline justify-between">
-                        <span className="text-xl font-bold text-foreground font-mono">
+                        <span className="text-3xl font-semibold text-foreground font-mono">
                           {machineStats.temp.avg.toFixed(1)}°C
                         </span>
-                        <div className="flex gap-2 text-[10px] font-mono font-semibold uppercase tracking-wider">
+                        <div className="flex gap-3 text-xs font-mono font-semibold uppercase tracking-wide">
                           <span className="text-red-500">Max {machineStats.temp.max.toFixed(0)}°</span>
                           <span className="text-primary">Min {machineStats.temp.min.toFixed(0)}°</span>
                         </div>
                       </div>
-                      <p className="text-[9px] text-muted-foreground font-semibold">
-                        Calculated mean from active history data buffer
+                      <p className="text-xs text-muted-foreground font-medium">
+                        Based on the readings in the current history window
                       </p>
                     </div>
 
                     {/* Pressure Stats Card */}
-                    <div className="bg-card border border-border/60 rounded-xl p-5 space-y-2">
-                      <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest block">
-                        Pressure averages ({selectedMachine})
+                    <div className="bg-card border-2 border-border rounded-2xl p-6 space-y-3 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                      <span className="text-xs text-muted-foreground font-bold uppercase tracking-[0.12em] block">
+                        Pressure average · {selectedMachineLabel}
                       </span>
                       <div className="flex items-baseline justify-between">
-                        <span className="text-xl font-bold text-foreground font-mono">
+                        <span className="text-3xl font-semibold text-foreground font-mono">
                           {machineStats.press.avg.toFixed(1)} PSI
                         </span>
-                        <div className="flex gap-2 text-[10px] font-mono font-semibold uppercase tracking-wider">
+                        <div className="flex gap-3 text-xs font-mono font-semibold uppercase tracking-wide">
                           <span className="text-red-500">Max {machineStats.press.max.toFixed(0)}</span>
                           <span className="text-primary">Min {machineStats.press.min.toFixed(0)}</span>
                         </div>
                       </div>
-                      <p className="text-[9px] text-muted-foreground font-semibold">
+                      <p className="text-xs text-muted-foreground font-medium">
                         Optimal bounds: 30.0 - 45.0 PSI range
                       </p>
                     </div>
 
                     {/* Vibration Stats Card */}
-                    <div className="bg-card border border-border/60 rounded-xl p-5 space-y-2">
-                      <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest block">
-                        Vibration averages ({selectedMachine})
+                    <div className="bg-card border-2 border-border rounded-2xl p-6 space-y-3 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                      <span className="text-xs text-muted-foreground font-bold uppercase tracking-[0.12em] block">
+                        Vibration average · {selectedMachineLabel}
                       </span>
                       <div className="flex items-baseline justify-between">
-                        <span className="text-xl font-bold text-foreground font-mono">
+                        <span className="text-3xl font-semibold text-foreground font-mono">
                           {machineStats.vib.avg.toFixed(2)} mm/s
                         </span>
-                        <div className="flex gap-2 text-[10px] font-mono font-semibold uppercase tracking-wider">
+                        <div className="flex gap-3 text-xs font-mono font-semibold uppercase tracking-wide">
                           <span className="text-red-500">Max {machineStats.vib.max.toFixed(1)}</span>
                           <span className="text-primary">Min {machineStats.vib.min.toFixed(1)}</span>
                         </div>
                       </div>
-                      <p className="text-[9px] text-muted-foreground font-semibold">
+                      <p className="text-xs text-muted-foreground font-medium">
                         Vibration warning threshold level: 5.0 mm/s
                       </p>
                     </div>
@@ -660,13 +674,13 @@ export default function SCADADashboard() {
                   </div>
 
                   {/* Main Time-series Plots */}
-                  <div className="bg-card border border-border/60 rounded-xl p-6 space-y-6">
-                    <div className="border-b border-border/40 pb-3">
-                      <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <div className="bg-card border-2 border-border rounded-2xl p-6 md:p-8 space-y-6 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                    <div className="border-b-2 border-border pb-4">
+                      <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                         <TrendingUp className="h-4.5 w-4.5 text-primary" />
                         Time-Series Telemetry Analysis
                       </h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">
+                      <p className="text-sm text-muted-foreground mt-1">
                         Continuous sensor metrics mapped across current run history
                       </p>
                     </div>
@@ -677,7 +691,7 @@ export default function SCADADashboard() {
                         
                         {/* Temperature chart */}
                         <div className="space-y-2">
-                          <h4 className="text-[10px] font-bold text-muted-foreground px-1 uppercase tracking-widest">
+                          <h4 className="text-xs font-bold text-muted-foreground px-1 uppercase tracking-[0.12em]">
                             Temperature Curve (°C)
                           </h4>
                           <div className="h-60 bg-transparent p-2">
@@ -690,10 +704,10 @@ export default function SCADADashboard() {
                                   </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" stroke={theme === "dark" ? "#222d20" : "#e4ebe1"} vertical={false} />
-                                <XAxis dataKey="Time" stroke="var(--muted-foreground)" opacity={0.6} fontSize={8} tickLine={false} tickFormatter={(t) => t.split(" ")[1] || t} />
-                                <YAxis domain={["dataMin - 10", "dataMax + 10"]} stroke="var(--muted-foreground)" opacity={0.6} fontSize={8} tickLine={false} />
+                                 <XAxis dataKey="Time" stroke="var(--muted-foreground)" opacity={0.8} fontSize={11} tickLine={false} tickFormatter={(t) => t.split(" ")[1] || t} />
+                                 <YAxis domain={["dataMin - 10", "dataMax + 10"]} stroke="var(--muted-foreground)" opacity={0.8} fontSize={11} tickLine={false} />
                                 <Tooltip contentStyle={{ backgroundColor: "var(--card)", borderColor: "var(--border)", borderRadius: "8px", fontSize: "11px", color: "var(--foreground)" }} />
-                                <Area type="monotone" dataKey="Temperature" name="Temp (°C)" stroke="var(--chart-1)" strokeWidth={1} fillOpacity={1} fill="url(#colorTempGrad)" />
+                                 <Area type="monotone" dataKey="Temperature" name="Temp (°C)" stroke="var(--chart-1)" strokeWidth={2.5} fillOpacity={1} fill="url(#colorTempGrad)" />
                               </AreaChart>
                             </ResponsiveContainer>
                           </div>
@@ -701,7 +715,7 @@ export default function SCADADashboard() {
 
                         {/* Pressure chart */}
                         <div className="space-y-2">
-                          <h4 className="text-[10px] font-bold text-muted-foreground px-1 uppercase tracking-widest">
+                          <h4 className="text-xs font-bold text-muted-foreground px-1 uppercase tracking-[0.12em]">
                             Pressure Variance (PSI)
                           </h4>
                           <div className="h-60 bg-transparent p-2">
@@ -714,10 +728,10 @@ export default function SCADADashboard() {
                                   </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" stroke={theme === "dark" ? "#222d20" : "#e4ebe1"} vertical={false} />
-                                <XAxis dataKey="Time" stroke="var(--muted-foreground)" opacity={0.6} fontSize={8} tickLine={false} tickFormatter={(t) => t.split(" ")[1] || t} />
-                                <YAxis domain={["dataMin - 5", "dataMax + 5"]} stroke="var(--muted-foreground)" opacity={0.6} fontSize={8} tickLine={false} />
+                                 <XAxis dataKey="Time" stroke="var(--muted-foreground)" opacity={0.8} fontSize={11} tickLine={false} tickFormatter={(t) => t.split(" ")[1] || t} />
+                                 <YAxis domain={["dataMin - 5", "dataMax + 5"]} stroke="var(--muted-foreground)" opacity={0.8} fontSize={11} tickLine={false} />
                                 <Tooltip contentStyle={{ backgroundColor: "var(--card)", borderColor: "var(--border)", borderRadius: "8px", fontSize: "11px", color: "var(--foreground)" }} />
-                                <Area type="monotone" dataKey="Pressure" name="Pressure (PSI)" stroke="var(--chart-2)" strokeWidth={1} fillOpacity={1} fill="url(#colorPressGrad)" />
+                                 <Area type="monotone" dataKey="Pressure" name="Pressure (PSI)" stroke="var(--chart-2)" strokeWidth={2.5} fillOpacity={1} fill="url(#colorPressGrad)" />
                               </AreaChart>
                             </ResponsiveContainer>
                           </div>
@@ -727,18 +741,18 @@ export default function SCADADashboard() {
 
                       {/* Vibration plot */}
                       <div className="space-y-2">
-                        <h4 className="text-[10px] font-bold text-muted-foreground px-1 uppercase tracking-widest">
+                        <h4 className="text-xs font-bold text-muted-foreground px-1 uppercase tracking-[0.12em]">
                           Structural Vibration (mm/s)
                         </h4>
                         <div className="h-60 bg-transparent p-2">
                           <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={getSelectedMachineHistory()}>
                               <CartesianGrid strokeDasharray="3 3" stroke={theme === "dark" ? "#222d20" : "#e4ebe1"} vertical={false} />
-                              <XAxis dataKey="Time" stroke="var(--muted-foreground)" opacity={0.6} fontSize={8} tickLine={false} tickFormatter={(t) => t.split(" ")[1] || t} />
-                              <YAxis domain={[0, "dataMax + 2"]} stroke="var(--muted-foreground)" opacity={0.6} fontSize={8} tickLine={false} />
+                               <XAxis dataKey="Time" stroke="var(--muted-foreground)" opacity={0.8} fontSize={11} tickLine={false} tickFormatter={(t) => t.split(" ")[1] || t} />
+                               <YAxis domain={[0, "dataMax + 2"]} stroke="var(--muted-foreground)" opacity={0.8} fontSize={11} tickLine={false} />
                               <Tooltip contentStyle={{ backgroundColor: "var(--card)", borderColor: "var(--border)", borderRadius: "8px", fontSize: "11px", color: "var(--foreground)" }} />
                               <Legend wrapperStyle={{ fontSize: "10px" }} />
-                              <Line type="monotone" dataKey="Vibration" name="Vibration (mm/s)" stroke="var(--chart-3)" strokeWidth={1.5} dot={false} activeDot={{ r: 3 }} />
+                               <Line type="monotone" dataKey="Vibration" name="Vibration (mm/s)" stroke="var(--chart-3)" strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} />
                             </LineChart>
                           </ResponsiveContainer>
                         </div>
@@ -751,19 +765,19 @@ export default function SCADADashboard() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                       
                       {/* Aggregated Machine metrics */}
-                      <div className="lg:col-span-2 bg-card border border-border/60 rounded-xl p-6 space-y-4">
+                      <div className="lg:col-span-2 bg-card border-2 border-border rounded-2xl p-6 md:p-7 space-y-5 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
                         <div>
-                          <h3 className="text-sm font-bold text-foreground">
+                          <h3 className="text-lg font-semibold text-foreground">
                             Aggregated Machine Metrics
                           </h3>
-                          <p className="text-xs text-muted-foreground">
-                            Average sensor telemetry registers sorted by node identifier
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Summary across the five monitored machines
                           </p>
                         </div>
                         <div className="overflow-x-auto">
-                          <Table className="text-xs">
+                          <Table className="text-sm">
                             <TableHeader className="bg-secondary/40">
-                              <TableRow className="border-b border-border/60">
+                                  <TableRow className="border-b-2 border-border">
                                 <TableHead className="font-bold text-muted-foreground h-9 px-4">Node</TableHead>
                                 <TableHead className="font-bold text-muted-foreground h-9 px-4">Avg Temp</TableHead>
                                 <TableHead className="font-bold text-muted-foreground h-9 px-4">Max Temp</TableHead>
@@ -776,8 +790,8 @@ export default function SCADADashboard() {
                               {Object.keys(analytics.machine_averages).map((mach) => {
                                 const stats = analytics.machine_averages[mach];
                                 return (
-                                  <TableRow key={mach} className="border-b border-border/30 hover:bg-secondary/20 transition-colors">
-                                    <TableCell className="font-bold text-foreground py-2.5 px-4">{mach}</TableCell>
+                                  <TableRow key={mach} className="border-b border-border hover:bg-secondary/40 transition-colors">
+                                    <TableCell className="font-bold text-foreground py-3 px-4">{formatMachineName(mach)}</TableCell>
                                     <TableCell className="font-mono text-muted-foreground py-2.5 px-4">{stats.avg_temp.toFixed(1)}°C</TableCell>
                                     <TableCell className="font-mono text-muted-foreground py-2.5 px-4">{stats.max_temp.toFixed(1)}°C</TableCell>
                                     <TableCell className="font-mono text-muted-foreground py-2.5 px-4">{stats.avg_vibration.toFixed(2)}</TableCell>
@@ -792,24 +806,24 @@ export default function SCADADashboard() {
                       </div>
 
                       {/* Power consumption chart */}
-                      <div className="bg-card border border-border/60 rounded-xl p-6 space-y-4">
+                      <div className="bg-card border-2 border-border rounded-2xl p-6 md:p-7 space-y-5 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
                         <div>
-                          <h3 className="text-sm font-bold text-foreground">
+                          <h3 className="text-lg font-semibold text-foreground">
                             Power Consumption (kW)
                           </h3>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-sm text-muted-foreground mt-1">
                             Electrical workload consumption averages
                           </p>
                         </div>
                         <div className="h-60 pt-2">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={Object.keys(analytics.machine_averages).map((mach) => ({
-                              name: mach,
+                              name: formatMachineName(mach),
                               power: analytics.machine_averages[mach].avg_power_kw
                             }))}>
                               <CartesianGrid strokeDasharray="3 3" stroke={theme === "dark" ? "#222d20" : "#e4ebe1"} vertical={false} />
-                              <XAxis dataKey="name" stroke="var(--muted-foreground)" opacity={0.6} fontSize={8} tickLine={false} />
-                              <YAxis stroke="var(--muted-foreground)" opacity={0.6} fontSize={8} tickLine={false} />
+                              <XAxis dataKey="name" stroke="var(--muted-foreground)" opacity={0.8} fontSize={11} tickLine={false} />
+                              <YAxis stroke="var(--muted-foreground)" opacity={0.8} fontSize={11} tickLine={false} />
                               <Tooltip contentStyle={{ backgroundColor: "var(--card)", borderColor: "var(--border)", borderRadius: "8px", fontSize: "11px", color: "var(--foreground)" }} />
                               <Bar dataKey="power" name="Avg Power (kW)" fill="var(--chart-4)" radius={[2, 2, 0, 0]} />
                             </BarChart>
@@ -825,25 +839,25 @@ export default function SCADADashboard() {
 
               {/* 3. ML PREDICTOR VIEW (Elegant Sandbox with Sliders & Bold Results) */}
               {activeTab === "predictor" && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
                   
                   {/* Telemetry Input Sliders */}
-                  <div className="lg:col-span-1 bg-card border border-border/60 rounded-xl p-6 space-y-4">
-                    <div className="border-b border-border/40 pb-3">
-                      <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <div className="lg:col-span-1 bg-card border-2 border-border rounded-2xl p-6 md:p-7 space-y-5 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                    <div className="border-b-2 border-border pb-4">
+                      <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                         <Sliders className="h-4.5 w-4.5 text-primary" />
-                        Simulation Sandbox
+                        Prediction inputs
                       </h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Simulate sensor metrics to run diagnostic risk classifiers
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Adjust readings to estimate machine failure risk
                       </p>
                     </div>
 
                     <form onSubmit={runPrediction} className="space-y-4">
                       
                       {/* Temperature Slider */}
-                      <div className="space-y-1.5 p-3.5 rounded-lg bg-secondary/50 border border-border/60">
-                        <div className="flex justify-between items-center text-[10px] font-bold text-muted-foreground">
+                      <div className="space-y-2 p-4 rounded-xl bg-secondary/70 border-2 border-border">
+                        <div className="flex justify-between items-center text-xs font-bold text-muted-foreground">
                           <span className="uppercase tracking-widest">Temperature</span>
                           <span className="font-mono font-bold text-foreground">
                             {predictInputs.Temperature.toFixed(1)} °C
@@ -858,7 +872,7 @@ export default function SCADADashboard() {
                           onChange={(e) => setPredictInputs({ ...predictInputs, Temperature: parseFloat(e.target.value) || 0 })}
                           className="w-full accent-primary h-1 bg-muted rounded-lg appearance-none cursor-pointer"
                         />
-                        <div className="flex justify-between text-[8px] text-muted-foreground font-semibold">
+                        <div className="flex justify-between text-[11px] text-muted-foreground font-semibold">
                           <span>30°C</span>
                           <span className={predictInputs.Temperature >= safeLimits.Temperature ? "text-red-500 font-bold" : "text-muted-foreground"}>Limit: {safeLimits.Temperature}°C</span>
                           <span>120°C</span>
@@ -866,8 +880,8 @@ export default function SCADADashboard() {
                       </div>
 
                       {/* Vibration Slider */}
-                      <div className="space-y-1.5 p-3.5 rounded-lg bg-secondary/50 border border-border/60">
-                        <div className="flex justify-between items-center text-[10px] font-bold text-muted-foreground">
+                      <div className="space-y-2 p-4 rounded-xl bg-secondary/70 border-2 border-border">
+                        <div className="flex justify-between items-center text-xs font-bold text-muted-foreground">
                           <span className="uppercase tracking-widest">Vibration</span>
                           <span className="font-mono font-bold text-foreground">
                             {predictInputs.Vibration.toFixed(1)} mm/s
@@ -882,7 +896,7 @@ export default function SCADADashboard() {
                           onChange={(e) => setPredictInputs({ ...predictInputs, Vibration: parseFloat(e.target.value) || 0 })}
                           className="w-full accent-primary h-1 bg-muted rounded-lg appearance-none cursor-pointer"
                         />
-                        <div className="flex justify-between text-[8px] text-muted-foreground font-semibold">
+                        <div className="flex justify-between text-[11px] text-muted-foreground font-semibold">
                           <span>0.5</span>
                           <span className={predictInputs.Vibration >= safeLimits.Vibration ? "text-red-500 font-bold" : "text-muted-foreground"}>Limit: {safeLimits.Vibration}</span>
                           <span>10.0</span>
@@ -890,8 +904,8 @@ export default function SCADADashboard() {
                       </div>
 
                       {/* Pressure Slider */}
-                      <div className="space-y-1.5 p-3.5 rounded-lg bg-secondary/50 border border-border/60">
-                        <div className="flex justify-between items-center text-[10px] font-bold text-muted-foreground">
+                      <div className="space-y-2 p-4 rounded-xl bg-secondary/70 border-2 border-border">
+                        <div className="flex justify-between items-center text-xs font-bold text-muted-foreground">
                           <span className="uppercase tracking-widest">Pressure</span>
                           <span className="font-mono font-bold text-foreground">
                             {predictInputs.Pressure.toFixed(1)} PSI
@@ -906,7 +920,7 @@ export default function SCADADashboard() {
                           onChange={(e) => setPredictInputs({ ...predictInputs, Pressure: parseFloat(e.target.value) || 0 })}
                           className="w-full accent-primary h-1 bg-muted rounded-lg appearance-none cursor-pointer"
                         />
-                        <div className="flex justify-between text-[8px] text-muted-foreground font-semibold">
+                        <div className="flex justify-between text-[11px] text-muted-foreground font-semibold">
                           <span>10 PSI</span>
                           <span className={predictInputs.Pressure >= safeLimits.Pressure ? "text-red-500 font-bold" : "text-muted-foreground"}>Limit: {safeLimits.Pressure}</span>
                           <span>80 PSI</span>
@@ -914,8 +928,8 @@ export default function SCADADashboard() {
                       </div>
 
                       {/* Voltage Slider */}
-                      <div className="space-y-1.5 p-3.5 rounded-lg bg-secondary/50 border border-border/60">
-                        <div className="flex justify-between items-center text-[10px] font-bold text-muted-foreground">
+                      <div className="space-y-2 p-4 rounded-xl bg-secondary/70 border-2 border-border">
+                        <div className="flex justify-between items-center text-xs font-bold text-muted-foreground">
                           <span className="uppercase tracking-widest">Voltage</span>
                           <span className="font-mono font-bold text-foreground">
                             {predictInputs.Voltage.toFixed(0)} V
@@ -930,7 +944,7 @@ export default function SCADADashboard() {
                           onChange={(e) => setPredictInputs({ ...predictInputs, Voltage: parseFloat(e.target.value) || 0 })}
                           className="w-full accent-primary h-1 bg-muted rounded-lg appearance-none cursor-pointer"
                         />
-                        <div className="flex justify-between text-[8px] text-muted-foreground font-semibold">
+                        <div className="flex justify-between text-[11px] text-muted-foreground font-semibold">
                           <span>170 V</span>
                           <span className={predictInputs.Voltage >= safeLimits.Voltage || predictInputs.Voltage <= 190 ? "text-red-500 font-bold" : "text-muted-foreground"}>Safe: 190-240V</span>
                           <span>260 V</span>
@@ -938,8 +952,8 @@ export default function SCADADashboard() {
                       </div>
 
                       {/* Current Slider */}
-                      <div className="space-y-1.5 p-3.5 rounded-lg bg-secondary/50 border border-border/60">
-                        <div className="flex justify-between items-center text-[10px] font-bold text-muted-foreground">
+                      <div className="space-y-2 p-4 rounded-xl bg-secondary/70 border-2 border-border">
+                        <div className="flex justify-between items-center text-xs font-bold text-muted-foreground">
                           <span className="uppercase tracking-widest">Current</span>
                           <span className="font-mono font-bold text-foreground">
                             {predictInputs.Current.toFixed(1)} A
@@ -954,7 +968,7 @@ export default function SCADADashboard() {
                           onChange={(e) => setPredictInputs({ ...predictInputs, Current: parseFloat(e.target.value) || 0 })}
                           className="w-full accent-primary h-1 bg-muted rounded-lg appearance-none cursor-pointer"
                         />
-                        <div className="flex justify-between text-[8px] text-muted-foreground font-semibold">
+                        <div className="flex justify-between text-[11px] text-muted-foreground font-semibold">
                           <span>2 A</span>
                           <span className={predictInputs.Current >= safeLimits.Current ? "text-red-500 font-bold" : "text-muted-foreground"}>Limit: {safeLimits.Current}</span>
                           <span>30 A</span>
@@ -964,7 +978,7 @@ export default function SCADADashboard() {
                       <button
                         type="submit"
                         disabled={isPredicting || !isBackendConnected}
-                        className="w-full bg-primary hover:bg-primary/95 text-primary-foreground font-bold py-2.5 px-4 rounded-lg transition-all text-xs flex items-center justify-center gap-2 disabled:opacity-50 mt-4 cursor-pointer shadow-sm"
+                        className="w-full bg-primary hover:bg-primary/95 text-primary-foreground font-semibold py-3.5 px-4 rounded-xl transition-all text-sm flex items-center justify-center gap-2 disabled:opacity-50 mt-4 cursor-pointer shadow-[0_3px_0_rgba(27,37,24,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                       >
                         <Play className="h-3.5 w-3.5" />
                         {isPredicting ? "Computing Diagnosis..." : "Run Risk Classification"}
@@ -974,13 +988,13 @@ export default function SCADADashboard() {
                   </div>
 
                   {/* Diagnostic Report: Large Minimal Text Indicator */}
-                  <div className="lg:col-span-2 bg-card border border-border/60 rounded-xl p-6 flex flex-col justify-between">
-                    <div className="border-b border-border/40 pb-3">
-                      <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <div className="lg:col-span-2 bg-card border-2 border-border rounded-2xl p-6 md:p-8 flex flex-col justify-between shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                    <div className="border-b-2 border-border pb-4">
+                      <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                         <BrainCircuit className="h-4.5 w-4.5 text-primary" />
                         ML Diagnostics Report
                       </h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">
+                      <p className="text-sm text-muted-foreground mt-1">
                         Machine health risk classification assessment
                       </p>
                     </div>
@@ -991,14 +1005,14 @@ export default function SCADADashboard() {
                           
                           {/* Mega text indicator */}
                           <div className="space-y-1">
-                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Failure risk assessment</span>
+                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-[0.12em] block">Failure risk assessment</span>
                             <div className="flex items-baseline gap-3">
                               <h2 className={`text-6xl md:text-7xl font-bold tracking-tighter font-mono leading-none ${
                                 predictionResult.status === "Healthy"
                                   ? "text-primary"
                                   : predictionResult.status === "Warning"
                                   ? "text-amber-600 dark:text-amber-400"
-                                  : "text-red-650 dark:text-red-400"
+                                  : "text-red-700 dark:text-red-400"
                               }`}>
                                 {predictionResult.failure_probability}%
                               </h2>
@@ -1006,8 +1020,8 @@ export default function SCADADashboard() {
                                 predictionResult.status === "Healthy"
                                   ? "bg-primary/10 text-primary border-primary/20"
                                   : predictionResult.status === "Warning"
-                                  ? "bg-amber-500/10 text-amber-655 border-amber-500/20"
-                                  : "bg-red-500/10 text-red-655 border-red-500/20"
+                                  ? "bg-amber-500/10 text-amber-800 border-amber-500/30"
+                                  : "bg-red-500/10 text-red-700 border-red-500/30"
                               }`}>
                                 {predictionResult.status}
                               </Badge>
@@ -1015,11 +1029,11 @@ export default function SCADADashboard() {
                           </div>
 
                           {/* Action Directives */}
-                          <div className="bg-secondary/75 p-5 rounded-xl border border-border/80 space-y-2 w-full max-w-lg">
-                            <span className="block font-bold text-muted-foreground text-[8px] uppercase tracking-widest">
-                              Directives
+                          <div className="bg-secondary/75 p-5 rounded-xl border-2 border-border space-y-2 w-full max-w-lg">
+                            <span className="block font-bold text-muted-foreground text-[11px] uppercase tracking-[0.12em]">
+                              Recommendation
                             </span>
-                            <div className="flex gap-2 text-xs text-foreground font-medium leading-relaxed">
+                            <div className="flex gap-2 text-sm text-foreground font-medium leading-relaxed">
                               <ChevronRight className="h-4.5 w-4.5 text-primary shrink-0 mt-0.5" />
                               <span>{predictionResult.recommendation}</span>
                             </div>
@@ -1029,11 +1043,11 @@ export default function SCADADashboard() {
                       ) : (
                         <div className="w-full flex flex-col items-center justify-center text-muted-foreground text-center space-y-2 py-16">
                           <BrainCircuit className="h-10 w-10 text-muted/20 animate-pulse" />
-                          <h4 className="text-xs font-bold text-foreground">
-                            Classifier Ready
+                          <h4 className="text-base font-semibold text-foreground">
+                            Ready to estimate risk
                           </h4>
-                          <p className="text-[10px] text-muted-foreground max-w-xs">
-                            Configure simulation variables using the sliders on the left and run diagnostics to fetch failure predictions.
+                          <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
+                            Adjust the sensor values, then run a prediction to see the estimated failure risk.
                           </p>
                         </div>
                       )}

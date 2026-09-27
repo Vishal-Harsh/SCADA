@@ -49,35 +49,35 @@
 }
 
 :root {
-  /* Ultra-clean pure white base */
-  --background: #ffffff;
-  --foreground: #1c231a;
+  /* Warm paper canvas with crisp, high-contrast instrumentation panels */
+  --background: #f3f2ed;
+  --foreground: #20251d;
   
   --card: #ffffff;
-  --card-foreground: #1c231a;
+  --card-foreground: #20251d;
   
   --popover: #ffffff;
-  --popover-foreground: #1c231a;
+  --popover-foreground: #20251d;
   
   /* Primary forest green accents */
   --primary: #4b6043;
   --primary-foreground: #ffffff;
   
-  --secondary: #f6f8f5;
-  --secondary-foreground: #4b6043;
+  --secondary: #eeefe9;
+  --secondary-foreground: #354431;
   
-  --muted: #f6f8f5;
-  --muted-foreground: #658354;
+  --muted: #eeefe9;
+  --muted-foreground: #596653;
   
-  --accent: #ebf0ea;
-  --accent-foreground: #4b6043;
+  --accent: #e5e9df;
+  --accent-foreground: #354431;
   
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
   
-  /* Super fine light gray-green borders */
-  --border: #eaeee8;
-  --input: #eaeee8;
+  /* Panel edges should remain visible against both the canvas and cards */
+  --border: #c9cec2;
+  --input: #aeb7a7;
   --ring: #4b6043;
   
   /* Accent colors from the green palette for widgets/charts */
@@ -87,15 +87,15 @@
   --chart-4: #87ab69;
   --chart-5: #b3cf99;
   
-  --radius: 0.375rem; /* Tighter borders for modern look */
+  --radius: 0.625rem;
   
   --sidebar: #ffffff;
-  --sidebar-foreground: #1c231a;
+  --sidebar-foreground: #20251d;
   --sidebar-primary: #4b6043;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f6f8f5;
-  --sidebar-accent-foreground: #4b6043;
-  --sidebar-border: #eaeee8;
+  --sidebar-accent: #eeefe9;
+  --sidebar-accent-foreground: #354431;
+  --sidebar-border: #c9cec2;
   --sidebar-ring: #4b6043;
 }
 
@@ -125,8 +125,8 @@
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   
-  --border: #1b2219;
-  --input: #1b2219;
+  --border: #3a4735;
+  --input: #53634b;
   --ring: #87ab69;
   
   --chart-1: #87ab69;
@@ -149,9 +149,19 @@
   * {
     @apply border-border outline-ring/40;
   }
+  ::selection {
+    background: rgba(75, 96, 67, 0.24);
+  }
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  }
+  .dashboard-shell {
+    background-image: linear-gradient(rgba(32, 37, 29, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(32, 37, 29, 0.035) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .dark .dashboard-shell {
+    background-image: linear-gradient(rgba(239, 243, 238, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(239, 243, 238, 0.035) 1px, transparent 1px);
   }
   html {
     font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
