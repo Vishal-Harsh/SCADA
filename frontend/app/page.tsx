@@ -441,6 +441,30 @@ export default function SCADADashboard() {
               {/* 1. DASHBOARD & ALARMS VIEW */}
               {activeTab === "dashboard" && (
                 <div className="space-y-7">
+
+                  <section className="relative isolate grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] gap-8 overflow-hidden border-2 border-foreground/80 bg-primary p-7 text-primary-foreground shadow-[6px_6px_0_rgba(29,33,25,0.16)] md:p-10">
+                    <div className="pointer-events-none absolute -right-5 -bottom-16 -z-10 editorial-display text-[16rem] leading-none text-white/[0.06]" aria-hidden="true">01</div>
+                    <div className="max-w-3xl">
+                      <p className="editorial-kicker text-[11px] font-semibold uppercase text-primary-foreground/70">Operations overview <span className="mx-2">/</span> Field system 01</p>
+                      <h2 className="editorial-display mt-5 text-4xl leading-[0.98] md:text-6xl">The state of every machine.</h2>
+                      <p className="mt-5 max-w-xl text-sm leading-relaxed text-primary-foreground/80 md:text-base">
+                        Live telemetry, recent alarms, and operating trends for your simulated machine fleet.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-0 self-end border-t border-primary-foreground/30 lg:grid-cols-1 lg:self-center lg:border-t-0 lg:border-l lg:pl-7">
+                      <div className="border-r border-primary-foreground/30 py-4 pr-4 lg:border-r-0 lg:border-b lg:py-5 lg:pr-0">
+                        <span className="editorial-kicker text-[10px] font-semibold uppercase text-primary-foreground/65">Machines reporting</span>
+                        <p className="mt-2 font-mono text-3xl font-medium">{String(activeMachineCount).padStart(2, "0")} <span className="text-base text-primary-foreground/65">/ 05</span></p>
+                      </div>
+                      <div className="py-4 pl-4 lg:py-5 lg:pl-0">
+                        <span className="editorial-kicker text-[10px] font-semibold uppercase text-primary-foreground/65">Connection</span>
+                        <p className="mt-2 flex items-center gap-2 text-base font-semibold">
+                          <span className={`h-2.5 w-2.5 rounded-full ${isBackendConnected ? "bg-[#d3ec8e]" : "bg-red-300"}`} />
+                          {isBackendConnected ? "Online" : "Offline"}
+                        </p>
+                      </div>
+                    </div>
+                  </section>
                   
                   {/* Telemetry Section Title */}
                   <div className="flex justify-between items-end gap-4 px-1">
@@ -450,7 +474,7 @@ export default function SCADADashboard() {
                         <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
                       </span>
                       <div>
-                        <h2 className="text-xl md:text-2xl font-semibold tracking-tight">Live telemetry</h2>
+                        <h2 className="editorial-display text-2xl md:text-3xl">Live telemetry</h2>
                         <p className="text-sm text-muted-foreground mt-0.5">Current readings for {selectedMachineLabel}</p>
                       </div>
                     </div>
@@ -511,12 +535,12 @@ export default function SCADADashboard() {
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 pt-2">
                     
                     {/* Alarms Feed Card */}
-                    <div className="lg:col-span-2 bg-card rounded-2xl border-2 border-border p-6 md:p-7 space-y-5 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                    <div className="lg:col-span-2 bg-card rounded-md border-2 border-border p-6 md:p-7 space-y-5 shadow-[4px_4px_0_rgba(29,33,25,0.08)]">
                       <div className="flex items-center justify-between border-b-2 border-border pb-4">
                         <div>
-                          <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                          <h3 className="editorial-display text-2xl text-foreground flex items-center gap-2">
                             <AlertTriangle className="h-4.5 w-4.5 text-amber-500 animate-pulse" />
-                            System Alarm Log
+                            Recent alarms
                           </h3>
                           <p className="text-sm text-muted-foreground mt-1">
                             Recent sensor readings outside their operating limits
@@ -562,10 +586,10 @@ export default function SCADADashboard() {
                     </div>
 
                     {/* Nodes Status list */}
-                    <div className="bg-card rounded-2xl border-2 border-border p-6 md:p-7 space-y-5 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                    <div className="bg-card rounded-md border-2 border-border p-6 md:p-7 space-y-5 shadow-[4px_4px_0_rgba(29,33,25,0.08)]">
                       <div className="flex items-center justify-between border-b-2 border-border pb-4">
                         <div>
-                          <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                          <h3 className="editorial-display text-2xl text-foreground flex items-center gap-2">
                             <Activity className="h-4.5 w-4.5 text-primary" />
                             Machine status
                           </h3>
@@ -615,7 +639,7 @@ export default function SCADADashboard() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     
                     {/* Temp Stats Card */}
-                    <div className="bg-card border-2 border-border rounded-2xl p-6 space-y-3 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                    <div className="bg-card border-2 border-border rounded-md p-6 space-y-3 shadow-[4px_4px_0_rgba(29,33,25,0.08)]">
                       <span className="text-xs text-muted-foreground font-bold uppercase tracking-[0.12em] block">
                         Temperature average · {selectedMachineLabel}
                       </span>
@@ -634,7 +658,7 @@ export default function SCADADashboard() {
                     </div>
 
                     {/* Pressure Stats Card */}
-                    <div className="bg-card border-2 border-border rounded-2xl p-6 space-y-3 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                    <div className="bg-card border-2 border-border rounded-md p-6 space-y-3 shadow-[4px_4px_0_rgba(29,33,25,0.08)]">
                       <span className="text-xs text-muted-foreground font-bold uppercase tracking-[0.12em] block">
                         Pressure average · {selectedMachineLabel}
                       </span>
@@ -653,7 +677,7 @@ export default function SCADADashboard() {
                     </div>
 
                     {/* Vibration Stats Card */}
-                    <div className="bg-card border-2 border-border rounded-2xl p-6 space-y-3 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                    <div className="bg-card border-2 border-border rounded-md p-6 space-y-3 shadow-[4px_4px_0_rgba(29,33,25,0.08)]">
                       <span className="text-xs text-muted-foreground font-bold uppercase tracking-[0.12em] block">
                         Vibration average · {selectedMachineLabel}
                       </span>
@@ -674,9 +698,9 @@ export default function SCADADashboard() {
                   </div>
 
                   {/* Main Time-series Plots */}
-                  <div className="bg-card border-2 border-border rounded-2xl p-6 md:p-8 space-y-6 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                  <div className="bg-card border-2 border-border rounded-md p-6 md:p-8 space-y-6 shadow-[4px_4px_0_rgba(29,33,25,0.08)]">
                     <div className="border-b-2 border-border pb-4">
-                      <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                          <h3 className="editorial-display text-2xl text-foreground flex items-center gap-2">
                         <TrendingUp className="h-4.5 w-4.5 text-primary" />
                         Time-Series Telemetry Analysis
                       </h3>
@@ -765,9 +789,9 @@ export default function SCADADashboard() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                       
                       {/* Aggregated Machine metrics */}
-                      <div className="lg:col-span-2 bg-card border-2 border-border rounded-2xl p-6 md:p-7 space-y-5 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                      <div className="lg:col-span-2 bg-card border-2 border-border rounded-md p-6 md:p-7 space-y-5 shadow-[4px_4px_0_rgba(29,33,25,0.08)]">
                         <div>
-                          <h3 className="text-lg font-semibold text-foreground">
+                          <h3 className="editorial-display text-2xl text-foreground">
                             Aggregated Machine Metrics
                           </h3>
                           <p className="text-sm text-muted-foreground mt-1">
@@ -806,9 +830,9 @@ export default function SCADADashboard() {
                       </div>
 
                       {/* Power consumption chart */}
-                      <div className="bg-card border-2 border-border rounded-2xl p-6 md:p-7 space-y-5 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                      <div className="bg-card border-2 border-border rounded-md p-6 md:p-7 space-y-5 shadow-[4px_4px_0_rgba(29,33,25,0.08)]">
                         <div>
-                          <h3 className="text-lg font-semibold text-foreground">
+                          <h3 className="editorial-display text-2xl text-foreground">
                             Power Consumption (kW)
                           </h3>
                           <p className="text-sm text-muted-foreground mt-1">
@@ -842,9 +866,9 @@ export default function SCADADashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
                   
                   {/* Telemetry Input Sliders */}
-                  <div className="lg:col-span-1 bg-card border-2 border-border rounded-2xl p-6 md:p-7 space-y-5 shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                  <div className="lg:col-span-1 bg-card border-2 border-border rounded-md p-6 md:p-7 space-y-5 shadow-[4px_4px_0_rgba(29,33,25,0.08)]">
                     <div className="border-b-2 border-border pb-4">
-                      <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                      <h3 className="editorial-display text-2xl text-foreground flex items-center gap-2">
                         <Sliders className="h-4.5 w-4.5 text-primary" />
                         Prediction inputs
                       </h3>
@@ -988,9 +1012,9 @@ export default function SCADADashboard() {
                   </div>
 
                   {/* Diagnostic Report: Large Minimal Text Indicator */}
-                  <div className="lg:col-span-2 bg-card border-2 border-border rounded-2xl p-6 md:p-8 flex flex-col justify-between shadow-[0_3px_0_rgba(27,37,24,0.04)]">
+                  <div className="lg:col-span-2 bg-card border-2 border-border rounded-md p-6 md:p-8 flex flex-col justify-between shadow-[4px_4px_0_rgba(29,33,25,0.08)]">
                     <div className="border-b-2 border-border pb-4">
-                      <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                      <h3 className="editorial-display text-2xl text-foreground flex items-center gap-2">
                         <BrainCircuit className="h-4.5 w-4.5 text-primary" />
                         ML Diagnostics Report
                       </h3>

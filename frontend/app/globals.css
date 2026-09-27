@@ -50,53 +50,53 @@
 
 :root {
   /* Warm paper canvas with crisp, high-contrast instrumentation panels */
-  --background: #f3f2ed;
-  --foreground: #20251d;
+  --background: #f2eee4;
+  --foreground: #1d2119;
   
-  --card: #ffffff;
-  --card-foreground: #20251d;
+  --card: #fffdf8;
+  --card-foreground: #1d2119;
   
-  --popover: #ffffff;
-  --popover-foreground: #20251d;
+  --popover: #fffdf8;
+  --popover-foreground: #1d2119;
   
   /* Primary forest green accents */
-  --primary: #4b6043;
+  --primary: #264d37;
   --primary-foreground: #ffffff;
   
-  --secondary: #eeefe9;
-  --secondary-foreground: #354431;
+  --secondary: #e8e3d7;
+  --secondary-foreground: #26392b;
   
-  --muted: #eeefe9;
-  --muted-foreground: #596653;
+  --muted: #e8e3d7;
+  --muted-foreground: #55594f;
   
-  --accent: #e5e9df;
-  --accent-foreground: #354431;
+  --accent: #dce8cf;
+  --accent-foreground: #26392b;
   
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
   
   /* Panel edges should remain visible against both the canvas and cards */
-  --border: #c9cec2;
-  --input: #aeb7a7;
-  --ring: #4b6043;
+  --border: #aaa596;
+  --input: #827f71;
+  --ring: #264d37;
   
   /* Accent colors from the green palette for widgets/charts */
-  --chart-1: #4b6043;
-  --chart-2: #658354;
-  --chart-3: #75975e;
-  --chart-4: #87ab69;
-  --chart-5: #b3cf99;
+  --chart-1: #264d37;
+  --chart-2: #c1703d;
+  --chart-3: #87973e;
+  --chart-4: #d0a637;
+  --chart-5: #8b7352;
   
   --radius: 0.625rem;
   
-  --sidebar: #ffffff;
-  --sidebar-foreground: #20251d;
-  --sidebar-primary: #4b6043;
+  --sidebar: #fffdf8;
+  --sidebar-foreground: #1d2119;
+  --sidebar-primary: #264d37;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eeefe9;
-  --sidebar-accent-foreground: #354431;
-  --sidebar-border: #c9cec2;
-  --sidebar-ring: #4b6043;
+  --sidebar-accent: #e8e3d7;
+  --sidebar-accent-foreground: #26392b;
+  --sidebar-border: #aaa596;
+  --sidebar-ring: #264d37;
 }
 
 .dark {
@@ -125,15 +125,15 @@
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   
-  --border: #3a4735;
-  --input: #53634b;
+  --border: #485241;
+  --input: #69765f;
   --ring: #87ab69;
   
-  --chart-1: #87ab69;
-  --chart-2: #75975e;
-  --chart-3: #658354;
-  --chart-4: #c7ddb5;
-  --chart-5: #ddead1;
+  --chart-1: #a8c18c;
+  --chart-2: #dd9567;
+  --chart-3: #c3ce70;
+  --chart-4: #e5c46c;
+  --chart-5: #baaa8f;
   
   --sidebar: #0f130e;
   --sidebar-foreground: #eff3ee;
@@ -157,11 +157,20 @@
     font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   }
   .dashboard-shell {
-    background-image: linear-gradient(rgba(32, 37, 29, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(32, 37, 29, 0.035) 1px, transparent 1px);
-    background-size: 32px 32px;
+    background-image: linear-gradient(rgba(29, 33, 25, 0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(29, 33, 25, 0.055) 1px, transparent 1px);
+    background-size: 40px 40px;
   }
   .dark .dashboard-shell {
-    background-image: linear-gradient(rgba(239, 243, 238, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(239, 243, 238, 0.035) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(239, 243, 238, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(239, 243, 238, 0.045) 1px, transparent 1px);
+  }
+  .editorial-display {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 500;
+    letter-spacing: -0.055em;
+  }
+  .editorial-kicker {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    letter-spacing: 0.14em;
   }
   html {
     font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
